@@ -83,7 +83,6 @@ def set_scheduler():
 
 @app.route('/api/set_sched_tunning', methods=['POST'])
 def set_sched_tunning():
-    print (request.json)
     result = set_tun(request.json)
     if result['status'] != 'ok':
         return jsonify({"status": "error", "message": result['status']}), 500
