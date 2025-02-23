@@ -17,12 +17,13 @@ def def_values() -> dict:
     for device in os.listdir(OS_PATH):
         subvalues = {}
         for value in os.listdir(f"{OS_PATH}/{device}/queue"):
-            if os.path.isfile(f"{OS_PATH}/{device}/queue/{value}"):
-                try:
-                    subvalues[value] = open(f"{OS_PATH}/{device}/queue/{value}").read().splitlines()[0]
-                except Exception:
-                    continue
-            values[device] = subvalues
+            if value != "scheduler":
+                if os.path.isfile(f"{OS_PATH}/{device}/queue/{value}"):
+                    try:
+                        subvalues[value] = open(f"{OS_PATH}/{device}/queue/{value}").read().splitlines()[0]
+                    except Exception:
+                        continue
+                values[device] = subvalues
 
     return values
 
