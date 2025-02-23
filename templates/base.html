@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kernel Auditor{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/base.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Menu -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Menu</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Create buttons -->
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+
+                    <!-- Home area -->
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="homeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Home</a>
+                        <ul class="dropdown-menu" aria-labelledby="homeDropdown">
+                            <li><a class="dropdown-item" href="/about">About</a></li>
+                            <li><a class="dropdown-item" href="/usage">Usage</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- System info area -->
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">System info</a>
+                        <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                            <li><a class="dropdown-item" href="/os">OS</a></li>
+                            <li><a class="dropdown-item" href="/processes">Processes</a></li>
+                            <li><a class="dropdown-item" href="/hardware">Hardware info</a></li>
+                            <li><a class="dropdown-item" href="/network">Network stat</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Low-level configuration area -->
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="optionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Kernel tunning</a>
+                        <ul class="dropdown-menu" aria-labelledby="optionsDropdown">
+                            <li><a class="dropdown-item" href="/sysctl_settings">Sysctl settings</a></li>
+                            <li><a class="dropdown-item" href="/schedulers">I/O Schedulers (Short and static)</a></li>
+                            <li><a class="dropdown-item" href="/full_schedulers">I/O Schedulers (Full and dynamic)</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Block of content -->
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3">
+        <div class="container">
+            <div class="text-center">
+                <p class="mb-1">Kernel Auditor - © 2025</p>
+                <p class="small mb-0">
+                    Open-source project on <a href="https://github.com/Andrey-oss/kernel-auditor" class="text-white" target="_blank">GitHub</a>
+                </p>
+                <p class="small mb-0">
+                    <a href="https://github.com/Andrey-oss/kernel-auditor/issues" class="text-white">Report an Issue</a> |
+                    <a href="https://github.com/Andrey-oss/kernel-auditor/README.md" class="text-white">Documentation</a> |
+                    <a href="https://github.com/Andrey-oss/kernel-auditor/pulls" class="text-white">Contribute</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

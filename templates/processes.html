@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Running Processes{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center my-5">Running Processes</h1>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered text-center">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>CPU Usage (%)</th>
+                        <th>Memory (MB)</th>
+                        <th>Status</th>
+                        <th>Started</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proc in processes %}
+                    <tr>
+                        <td>{{ proc.pid }}</td>
+                        <td>{{ proc.name }}</td>
+                        <td>{{ proc.cpu_percent }}</td>
+                        <td>{{ proc.memory }}</td>
+                        <td>{{ proc.status }}</td>
+                        <td>{{ proc.started }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

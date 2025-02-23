@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Full I/O Scheduler Settings{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center my-5">Full I/O Scheduler Settings (Experimental)</h1>
+        <div class="row">
+            {% for device, schedulers in io_schedulers.items() %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-lg border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Device: {{ device }}</h5>
+                        <form class="scheduler-form" data-device="{{ device }}">
+                            <label class="form-label">Select Scheduler:</label>
+                            <select class="form-select scheduler-select">
+                                {% for scheduler in schedulers %}
+                                    <option value="{{ scheduler.strip('[]') }}" {% if '[' in scheduler %}selected{% endif %}>
+                                        {{ scheduler.strip('[]') }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-success mt-3 save-scheduler">Apply</button>
+                        </form>
+                        
+                        <h6 class="mt-4">Advanced Tuning</h6>
+                        <form class="tuning-form" data-device="{{ device }}">
+                            {% for param, value in def_values[device].items() %}
+                                <label for="{{ param }}-{{ device }}" class="form-label mt-2">{{ param }}</label>
+                                <input class="form-control" id="{{ param }}-{{ device }}" placeholder="Enter values ({{ value }})" min="0" value="{{ value }}">
+                            {% endfor %}
+                            <button type="button" class="btn btn-info mt-3 save-tuning">Apply Tuning</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".save-scheduler").forEach(button => {
+                button.addEventListener("click", function() {
+                    let form = this.closest(".scheduler-form");
+                    let device = form.getAttribute("data-device");
+                    let scheduler = form.querySelector(".scheduler-select").value;
+                    
+                    fetch("/api/set_scheduler", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ device, scheduler })
+                    }).then(response => response.json())
+                      .then(data => alert(data.message));
+                });
+            });
+            
+            document.querySelectorAll(".save-tuning").forEach(button => {
+                button.addEventListener("click", function() {
+                    let form = this.closest(".tuning-form");
+                    let device = form.getAttribute("data-device");
+                    let params = {};
+                    
+                    form.querySelectorAll("input").forEach(input => {
+                        params[input.id.split('-')[0]] = input.value;
+                    });
+                    
+                    fetch("/api/set_tuning", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ device, ...params })
+                    }).then(response => response.json())
+                      .then(data => alert(data.message));
+                });
+            });
+        });
+    </script>
+{% endblock %}

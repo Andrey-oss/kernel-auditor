@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}System Information{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center my-5 text-info">System Information</h1>
+        <div class="row">
+            <!-- Sysctem info -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-lg border-info">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">Operating System</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>System:</strong> {{ system_info['system'] }}</li>
+                            <li><strong>Node Name:</strong> {{ system_info['node_name'] }}</li>
+                            <li><strong>Release:</strong> {{ system_info['release'] }}</li>
+                            <li><strong>Version:</strong> {{ system_info['version'] }}</li>
+                            <li><strong>Architecture:</strong> {{ system_info['architecture'] }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System resources -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-lg border-warning">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">System Resources</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>CPU Cores:</strong> {{ system_info['cpu_count'] }}</li>
+                            <li><strong>CPU Frequency:</strong> {{ system_info['cpu_freq'] }} MHz</li>
+                            <li><strong>Total Memory:</strong> {{ system_info['total_memory'] }} GB</li>
+                            <li><strong>Used Memory:</strong> {{ system_info['used_memory'] }} GB</li>
+                            <li><strong>Disk Space:</strong> {{ system_info['disk_space'] }} GB</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System uptime -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-lg border-success">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">System Uptime</h5>
+                        <p><strong>Uptime:</strong> {{ system_info['uptime'] }}</p>
+                        <p><strong>Boot Time:</strong> {{ system_info['boot_time'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cpu usage -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-lg border-danger">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">CPU Usage</h5>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                style="width: {{ system_info['cpu_percent'] }}%" 
+                                aria-valuenow="{{ system_info['cpu_percent'] }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ system_info['cpu_percent'] }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ram usage -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-lg border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Memory Usage</h5>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                style="width: {{ (system_info['used_memory'] / system_info['total_memory']) * 100 }}%" 
+                                aria-valuenow="{{ (system_info['used_memory'] / system_info['total_memory']) * 100 }}" 
+                                aria-valuemin="0" aria-valuemax="100">
+                                {{ ((system_info['used_memory'] / system_info['total_memory'])*100)|round(2) }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System load -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card shadow-lg border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">System Load</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Load (1 min):</strong> {{ system_info['load_avg'][0] }}</li>
+                            <li><strong>Load (5 min):</strong> {{ system_info['load_avg'][1] }}</li>
+                            <li><strong>Load (15 min):</strong> {{ system_info['load_avg'][2] }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

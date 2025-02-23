@@ -1,0 +1,6 @@
+===v1.0.0===
+1. Project created
+2. Added IO Schedulers, Sysctl settings
+3. Added OS/Processes/Hardware/Network status information
+4. Added minimalistic API implementation 
+5. Added checkhealth mechanism

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Network Information{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center my-5 text-info">Network Information</h1>
+        
+        <div class="row">
+            <!-- Network Interfaces -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-lg border-success">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">Network Interfaces</h5>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Interface</th>
+                                    <th>IP Address</th>
+                                    <th>Received (bytes)</th>
+                                    <th>Sent (bytes)</th>
+                                    <th>Speed (bytes/s)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for interface, details in network_info.items() %}
+                                    <tr>
+                                        <td>{{ interface }}</td>
+                                        <td>{{ details['ip'] }}</td>
+                                        <td>{{ details['received'] }}</td>
+                                        <td>{{ details['sent'] }}</td>
+                                        <td>{{ details['speed'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Speed Test -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-lg border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Internet Speed Test</h5>
+                        <p><strong>Download Speed:</strong> {{ speed_test['download'] }}</p>
+                        <p><strong>Upload Speed:</strong> {{ speed_test['upload'] }}</p>
+                        <p><strong>Ping:</strong> {{ speed_test['ping'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IP Address -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-lg border-warning">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">IP Information</h5>
+                        {% for k, v in ip_info.items() %}
+                            <p><strong>{{ k }}:</strong> {{ v }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

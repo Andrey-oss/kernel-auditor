@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Sysctl Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Sysctl Settings</h1>
+    <input type="text" id="search" class="form-control mb-3" placeholder="Search sysctl settings...">
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="sysctl-table">
+                {% for param, value in sysctl_data.items() %}
+                <tr>
+                    <td>
+                        <span class="param-name" data-bs-toggle="tooltip" title="{{ param }}">
+                            {{ param }}
+                        </span>
+                    </td>
+                    <td><input type="text" class="form-control sysctl-value" value="{{ value }}"></td>
+                    <td><button class="btn btn-primary apply-btn" data-param="{{ param }}">Apply</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("search");
+        const tableRows = document.querySelectorAll("#sysctl-table tr");
+        
+        searchInput.addEventListener("input", function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            tableRows.forEach(row => {
+                const param = row.querySelector(".param-name").textContent.toLowerCase();
+                row.style.display = param.includes(searchTerm) ? "" : "none";
+            });
+        });
+
+        document.querySelectorAll(".apply-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                const name = this.getAttribute("data-param");
+                const value = this.closest("tr").querySelector(".sysctl-value").value;
+                
+                fetch("/api/set_sysctl", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, value }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload()
+                })
+            });
+        });
+    });
+</script>
+{% endblock %}
