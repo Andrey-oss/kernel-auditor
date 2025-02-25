@@ -31,9 +31,10 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card shadow-sm border-0 rounded-3">
-                    <img src="{{ url_for('static', filename='img/hdd.svg') }}" width="100" height="100" class="card-img-top" alt="Kernel Settings">
+                    <img src="{{ url_for('static', filename='img/hdd.svg') }}" width="100" height="100" class="card-img-top" alt="Scheduler Settings">
                     <div class="card-body">
                         <h5 class="card-title">Scheduler Settings</h5>
                         <p class="card-text">Tweak and optimize your IO schedulers settings for better disk performance</p>
@@ -41,6 +42,18 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <img src="{{ url_for('static', filename='img/cpu.svg') }}" width="100" height="100" class="card-img-top" alt="CPU Settings">
+                    <div class="card-body">
+                        <h5 class="card-title">CPU Settings</h5>
+                        <p class="card-text">Rescale and retune your processor cores power for more comfortable work</p>
+                        <a href="/cpu_settings" class="btn btn-outline-primary">Explore</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     

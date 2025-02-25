@@ -4,3 +4,12 @@
 3. Added OS/Processes/Hardware/Network status information
 4. Added minimalistic API implementation 
 5. Added checkhealth mechanism
+
+===v1.0.1===
+1. Fixed critical bug with scheduler changes (commited in v1.0.0)
+2. Changed def_values() logic to find the correct parameters for some changes
+3. Added СPU settings on kernel-space level
+4. Added necessary root check
+5. Added driver/load support in hardware information
+6. Some code review
+7. Added some tooltips

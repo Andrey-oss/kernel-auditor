@@ -37,7 +37,9 @@ def get_hardware_info() -> dict:
         "disk_free": round(psutil.disk_usage('/').free / (1024 ** 3), 2),
 
         "gpu_model": gpu_info.name if gpu_info else "N/A",
+        "gpu_driver": gpu_info.driver if gpu_info else "N/A",
         "gpu_memory": round(gpu_info.memoryTotal / 1024, 2) if gpu_info else "N/A",
+        "gpu_load": gpu_info.load if gpu_info else "N/A",
         "gpu_temp": gpu_info.temperature if gpu_info else "N/A",
 
         "net_adapter": main_adapter,

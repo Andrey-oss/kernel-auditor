@@ -3,6 +3,7 @@ from modules.sysctl import parse_sysctl, set_sysctls
 from modules.hardware import get_hardware_info
 from modules.os_info import get_system_info
 from modules.process import get_processes
+from modules.cpu import *
 from modules.network import *
 from modules.sched import *
 from core.settings import cfg_parser
@@ -72,6 +73,11 @@ def sysctl_settings():
     sysctl_data = parse_sysctl()
     return render_template('sysctl.html', sysctl_data=sysctl_data)
 
+@app.route('/cpu_settings')
+def cpu_settings():
+    cpu_data = cpu_info()
+    return render_template('cpu.html', cpu_data=cpu_data)
+
 ## API SECTION
 
 @app.route('/api/set_scheduler', methods=['POST'])
@@ -83,7 +89,6 @@ def set_scheduler():
 
 @app.route('/api/set_sched_tunning', methods=['POST'])
 def set_sched_tunning():
-    print (request.json)
     result = set_tun(request.json)
     if result['status'] != 'ok':
         return jsonify({"status": "error", "message": result['status']}), 500
@@ -91,11 +96,35 @@ def set_sched_tunning():
 
 @app.route('/api/set_sysctl', methods=['POST'])
 def set_sysctl():
-    output = request.json
-    result = set_sysctls(output)
+    result = set_sysctls(request.json)
     if result['status'] != 'ok':
         return jsonify({"status": "error", "message": result['status']}), 500
-    return jsonify({"status": "ok", 'message': f'Parameter {output['name']} was changed successfully!'})
+    return jsonify({"status": "ok", 'message': f'Parameter {request.json['name']} was changed successfully!'})
+
+@app.route('/api/set_cpu_governor', methods=['POST'])
+def set_cpu_governor():
+    args = request.json
+    result = set_governor(args['cpu'], args['governor'])
+    if result['status'] != 'ok':
+        return jsonify({"status": "error", "message": result['status']}), 500
+    return jsonify({"status": "ok", 'message': f'Governor {args['governor']} was changed successfully for CPU {args['cpu']}!'})
+
+@app.route('/api/set_cpu_frequency', methods=['POST'])
+def set_cpu_frequency():
+    cpu = request.json['cpu']
+    min_freq = request.json['min_freq']
+    max_freq = request.json['max_freq']
+    result = set_frequencies(min_freq, max_freq, cpu)
+    if result['status'] != 'ok':
+        return jsonify({"status": "error", "message": result['status']}), 500
+    return jsonify({"status": "ok", 'message': f'Frequency was changed successfully!'})
+
+@app.route('/api/set_cpu_features', methods=['POST'])
+def set_cpu_features():
+    result = set_features(request.json)
+    if result['status'] != 'ok':
+        return jsonify({"status": "error", "message": result['status']}), 500
+    return jsonify({"status": "ok", 'message': f'CPU Features were changed successfully!'})
 
 if __name__ == '__main__':
     app.run(debug=cfg['debug'], port=cfg['port'])

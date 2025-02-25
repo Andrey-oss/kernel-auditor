@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}CPU Tuning Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">CPU Tuning Settings</h1>
+
+    <div class="row">
+        {% for cpu, settings in cpu_data.items() %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">CPU: {{ cpu }}</h5>
+
+                    <!-- Frequency Governor Selection -->
+                    <h6 class="mt-4">CPU Frequency Governor</h6>
+                    <form class="cpu-governor-form" data-cpu="{{ cpu }}">
+                        <label class="form-label">Select Governor:</label>
+                        <select class="form-select governor-select">
+                            {% for governor in settings['available_governors'] %}
+                                <option value="{{ governor }}" {% if settings['current_governor'] == governor %}selected{% endif %}>
+                                    {{ governor }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-success mt-3 save-governor">Apply</button>
+                    </form>
+
+                    <!-- Frequency Settings -->
+                    <h6 class="mt-4">CPU Frequency Settings</h6>
+                    <form class="cpu-freq-form" data-cpu="{{ cpu }}">
+                        <label for="min-freq-{{ cpu }}" class="form-label">Min Frequency (Hz)</label>
+                        <select class="form-select" id="min-freq-{{ cpu }}">
+                            {% for freq in settings['available_frequencies'] %}
+                                <option value="{{ freq }}" {% if freq == settings['min_freq'] %}selected{% endif %}>
+                                    {{ freq }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="max-freq-{{ cpu }}" class="form-label mt-2">Max Frequency (Hz)</label>
+                        <select class="form-select" id="max-freq-{{ cpu }}">
+                            {% for freq in settings['available_frequencies'] %}
+                                <option value="{{ freq }}" {% if freq == settings['max_freq'] %}selected{% endif %}>
+                                    {{ freq }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="button" class="btn btn-success mt-3 save-freq">Apply Frequency</button>
+                    </form>
+
+                    <!-- Precision Boost & Core Performance Boost (CPB) -->
+                    <h6 class="mt-4">Additional CPU Features</h6>
+                    {% if 'precision_boost' in settings %}
+                    <form class="cpu-boost-form" data-cpu="{{ cpu }}">
+                        <div class="form-check">
+                            <input class="form-check-input precision_boost-checkbox" type="checkbox" id="precision_boost-{{ cpu }}"
+                            {% if settings['precision_boost']|int == 1 %}checked{% endif %}>
+
+                            <label class="form-check-label" for="precision_boost-{{ cpu }}">
+                                Enable Precision Boost
+                            </label>
+                        </div>
+                    {% endif %}
+
+                    {% if 'cpb' in settings %}
+                        <div class="form-check">
+                            <input class="form-check-input cpb-checkbox" type="checkbox" id="cpb-{{ cpu }}"
+                            {% if settings['cpb']|int == 1 %}checked{% endif %}>
+                            <label class="form-check-label" for="cpb-{{ cpu }}">
+                                Core Performance Boost
+                            </label>
+                        </div>
+                    {% endif %}
+
+                        <button type="button" class="btn btn-success mt-3 save-boost">Apply</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Apply Governor
+        document.querySelectorAll(".save-governor").forEach(button => {
+            button.addEventListener("click", function () {
+                const cpu = this.closest(".cpu-governor-form").getAttribute("data-cpu");
+                const governor = this.closest(".cpu-governor-form").querySelector(".governor-select").value;
+
+                fetch("/api/set_cpu_governor", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cpu, governor }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message),
+                    location.reload()
+                });
+            });
+        });
+
+        // Apply Frequency
+        document.querySelectorAll(".save-freq").forEach(button => {
+            button.addEventListener("click", function () {
+                const cpu = this.closest(".cpu-freq-form").getAttribute("data-cpu");
+                const min_freq = this.closest(".cpu-freq-form").querySelector("#min-freq-" + cpu).value;
+                const max_freq = this.closest(".cpu-freq-form").querySelector("#max-freq-" + cpu).value;
+
+                fetch("/api/set_cpu_frequency", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cpu, min_freq, max_freq }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message),
+                    location.reload()
+                });
+            });
+        });
+
+        // Apply some CPU Features
+        document.querySelectorAll(".save-boost").forEach(button => {
+            button.addEventListener("click", function () {
+                const cpu = this.closest(".cpu-boost-form").getAttribute("data-cpu");
+
+                // Check if CPB is presented
+                const cpb_checkbox = this.closest(".cpu-boost-form").querySelector(".cpb-checkbox");
+                const cpb = cpb_checkbox ? cpb_checkbox.checked : undefined;
+
+                // Check if Precision boost is presented
+                const precision_boost_checkbox = this.closest(".cpu-boost-form").querySelector(".precision_boost-checkbox");
+                const precision_boost = precision_boost_checkbox ? precision_boost_checkbox.checked : undefined;
+
+                const requestData = { cpu };
+                // CPB
+                if (cpb !== undefined) {
+                    requestData.cpb = cpb;
+                }
+
+                // Precision boost
+                if (precision_boost !== undefined) {
+                    requestData.boost = precision_boost;
+                }
+
+                fetch("/api/set_cpu_features", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message),
+                    location.reload()
+                });
+            });
+        });
+
+
+    });
+</script>
+{% endblock %}

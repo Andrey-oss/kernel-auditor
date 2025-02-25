@@ -4,7 +4,7 @@ def init():
     if check_root():
         print ("[+] Root access enabled!")
     else:
-        print ("[-] Root access disabled! Some functions won't work")
+        exit ("[-] Root access disabled! App won't start correctly, exiting..")
     
     if check_os():
         print ("[+] Detected Linux system!")

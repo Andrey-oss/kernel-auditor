@@ -60,6 +60,32 @@ The application uses a configuration file to manage settings. You can adjust set
   }
   ```
 
+### CPU Management
+- **Set CPU Governor**: `POST /api/set_cpu_governor`
+  ```json
+  {
+      "cpu": 0,
+      "governor": "performance"
+  }
+  ```
+- **Set CPU Frequencies**: `POST /api/set_cpu_frequency`
+  ```json
+  {
+      "cpu": 0,
+      "min_freq": 2400000,
+      "max_freq": 5000000
+  }
+  ```
+
+- **Set CPU Features**: `POST /api/set_cpu_features`
+  ```json
+  {
+      "cpu": 0,
+      "cpb": 1,
+      "boost": 1 
+  }
+  ```
+
 ## Usage
 - Visit `http://127.0.0.1:5000/` to access the web interface
 - Navigate through the sections to view and modify system settings

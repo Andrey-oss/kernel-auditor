@@ -16,13 +16,21 @@ def def_values() -> dict:
 
     for device in os.listdir(OS_PATH):
         subvalues = {}
-        for value in os.listdir(f"{OS_PATH}/{device}/queue"):
-            if os.path.isfile(f"{OS_PATH}/{device}/queue/{value}"):
-                try:
-                    subvalues[value] = open(f"{OS_PATH}/{device}/queue/{value}").read().splitlines()[0]
-                except Exception:
-                    continue
-            values[device] = subvalues
+
+        for key in os.listdir(f"{OS_PATH}/{device}/queue"):
+            if key != "scheduler":
+                file_path = f"{OS_PATH}/{device}/queue/{key}"
+
+                if os.path.isfile(file_path):
+                    try:
+                        value = open(file_path).read().strip()
+                    except Exception:
+                        pass
+                    else:
+                        result = subprocess.run(f'echo "{value}" > {file_path}', shell=True, stderr=subprocess.PIPE, text=True)
+                        if result.returncode == 0:
+                            subvalues[key] = value
+        values[device] = subvalues
 
     return values
 
@@ -37,7 +45,7 @@ def set_sched(data):
     result = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, text=True)
     
     if result.returncode != 0 or result.stderr:
-        return {"status": "Permission denied! Make your sure that webservice has root access"}
+        return {"status": result.stderr.strip()}
     else:
         return {"status": "ok"}
 
@@ -51,7 +59,7 @@ def set_tun(data):
             result = subprocess.run(f'echo {v} > /sys/block/{data['device']}/queue/{k}', shell=True, stderr=subprocess.PIPE, text=True)
 
             if result.returncode != 0 or result.stderr:
-                errors[k] = result.stderr.splitlines()
+                errors[k] = result.stderr.strip()
     
     if len(errors) == 0:
         return {'status': 'ok'}

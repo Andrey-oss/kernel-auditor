@@ -51,7 +51,9 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ device, scheduler })
                     }).then(response => response.json())
-                      .then(data => alert(data.message));
+                      .then(data => {
+                        alert(data.message),
+                        location.reload()});
                 });
             });
             
@@ -70,7 +72,9 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ device, ...params })
                     }).then(response => response.json())
-                      .then(data => alert(data.message));
+                      .then(data => {
+                        alert(data.message),
+                        location.reload()});
                 });
             });
         });

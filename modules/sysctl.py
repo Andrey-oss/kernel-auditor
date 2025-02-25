@@ -12,12 +12,10 @@ def parse_sysctl():
     return sysctl_data
 
 def set_sysctls(data):
-    try:
-        result = subprocess.run(['sudo', 'sysctl', f"{data['name']}={data['value']}"], stderr=subprocess.PIPE, check=True)
-    except Exception as e:
-        return {'status': 'You entered the wrong value of the parameter'}
+    result = subprocess.run(['sudo', 'sysctl', f"{data['name']}={data['value']}"], stderr=subprocess.PIPE, text=True)
 
     if result.returncode != 0 or result.stderr:
-        return {'status': str({data['name']: result.stderr})}
+    #    return {'status': str({data['name']: result.stderr.strip()})}
+        return {'status': 'You entered the wrong value of the parameter'}
     
     return {'status': 'ok'}
