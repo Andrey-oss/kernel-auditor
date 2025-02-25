@@ -10,6 +10,7 @@ This project is a Flask-based web application designed for system monitoring, op
 - **I/O Scheduler Management**: Change and tune I/O schedulers dynamically
 - **Sysctl Tweaks**: Modify and apply kernel parameters in real-time
 - **API Support**: Expose endpoints for automation and remote management
+- **CPU Settings**: Edit CPU frequencies, governors and some features
 
 ## Installation
 ### Prerequisites
