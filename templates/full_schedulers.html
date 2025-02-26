@@ -67,7 +67,7 @@
                         params[input.id.split('-')[0]] = input.value;
                     });
                     
-                    fetch("/api/set_tuning", {
+                    fetch("/api/set_sched_tunning", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ device, ...params })
