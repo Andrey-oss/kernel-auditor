@@ -41,7 +41,7 @@ bash scripts/del_syswide.sh
 ```
 
 ## Configuration
-The application uses a configuration file to manage settings. You can adjust settings in `core/settings.py`
+The application uses a configuration file to manage settings. You can adjust settings in `settings.json`
 
 ## API Endpoints
 ### Scheduler Management
