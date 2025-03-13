@@ -1,0 +1,12 @@
+[Unit]
+Description=Kernel Auditor Service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+User=root
+ExecStart=/bin/sh -c 'cd /usr/share/kernel_auditor && /usr/bin/env python3 main.py'
+
+[Install]
+WantedBy=multi-user.target

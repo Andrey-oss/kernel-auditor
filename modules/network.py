@@ -37,7 +37,7 @@ def get_speed_test() -> dict:
         try:
             st = speedtest.Speedtest()
             st.get_best_server()
-        except Exception as e:
+        except Exception:
             return {'download': False, 'upload': False, 'ping': False}
         else:
             download_speed = st.download() / 1_000_000  # MBps
@@ -48,7 +48,7 @@ def get_speed_test() -> dict:
 
 def get_ip_info() -> dict:
     try:
-        r = requests.get("https://ifconfig.co/json").json()
+        r = requests.get("https://ifconfig.co/json", timeout=5).json()
     except Exception:
         return {"Internet": "disabled"}
     return {k.capitalize().replace("_", " "): v for k, v in r.items() if k != 'user_agent'} # I was trying to display name and info via dict :P

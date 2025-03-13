@@ -25,7 +25,7 @@
                         
                         <h6 class="mt-4">Advanced Tuning</h6>
                         <form class="tuning-form" data-device="{{ device }}">
-                            {% for param, value in def_values[device].items() %}
+                            {% for param, value in scheduler_values[device].items() %}
                                 <label for="{{ param }}-{{ device }}" class="form-label mt-2">{{ param }}</label>
                                 <input class="form-control" id="{{ param }}-{{ device }}" placeholder="Enter values ({{ value }})" min="0" value="{{ value }}">
                             {% endfor %}

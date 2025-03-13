@@ -74,8 +74,8 @@ echo "performance" | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_gover
 ## 🚀 Core Performance Boost (CPB) and Precision Boost
 Some CPUs support additional performance features:
 
-- **AMD Core Performance Boost (CPB)**: Similar to Intel Turbo Boost (currently unsupported)
-- **AMD Precision Boost**: Dynamically increases clock speed for improved performance based on workload and thermal conditions
+- **AMD Core Performance Boost (CPB)**: Increases the processor's clock speed above the base frequency when there is thermal and power headroom to enhance performance
+- **AMD Precision Boost**: Dynamically increases clock speed for improved performance based on workload and thermal conditions (More harder than CPB technology)
 
 To check if these features are enabled:
 ```bash

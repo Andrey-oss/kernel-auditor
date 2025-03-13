@@ -54,35 +54,37 @@ def process_info():
 
 @app.route('/schedulers')
 def schedulers():
-    schedulers = get_schedulers()
-    values = def_values()
+    io_schedulers = get_schedulers()
+    scheduler_values = get_sched_values()
     return render_template('sched.html',
-                            io_schedulers=schedulers,
-                            def_values=values)
+                            io_schedulers=io_schedulers,
+                            scheduler_values=scheduler_values)
 
 @app.route('/full_schedulers')
 def full_schedulers():
-    schedulers = get_schedulers()
-    values = def_values()
+    io_schedulers = get_schedulers()
+    scheduler_values = get_sched_values()
     return render_template('full_schedulers.html',
-                            io_schedulers=schedulers,
-                            def_values=values)
+                            io_schedulers=io_schedulers,
+                            scheduler_values=scheduler_values)
 
 @app.route('/sysctl_settings')
 def sysctl_settings():
     sysctl_data = parse_sysctl()
     return render_template('sysctl.html', sysctl_data=sysctl_data)
 
-@app.route('/cpu_settings')
+@app.route('/full_cpu_settings')
 def cpu_settings():
     cpu_data = cpu_info()
-    return render_template('cpu.html', cpu_data=cpu_data)
+    return render_template('full_cpu.html', cpu_data=cpu_data)
 
 ## API SECTION
 
 @app.route('/api/set_scheduler', methods=['POST'])
 def set_scheduler():
-    result = set_sched(request.json)
+    device = request.json['device']
+    scheduler = request.json['scheduler']
+    result = set_sched(device, scheduler)
     if result['status'] != 'ok':
         return jsonify({"status": "error", "message": result['status']}), 500
     return jsonify({"status": "ok", 'message': 'Scheduler has been changed successfully!'})
@@ -103,8 +105,9 @@ def set_sysctl():
 
 @app.route('/api/set_cpu_governor', methods=['POST'])
 def set_cpu_governor():
-    args = request.json
-    result = set_governor(args['cpu'], args['governor'])
+    cpu = request.json['cpu']
+    governor = request.json['governor']
+    result = set_governor(cpu, governor)
     if result['status'] != 'ok':
         return jsonify({"status": "error", "message": result['status']}), 500
     return jsonify({"status": "ok", 'message': f'Governor {args['governor']} was changed successfully for CPU {args['cpu']}!'})

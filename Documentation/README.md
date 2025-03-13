@@ -12,6 +12,9 @@ In this folder, you will find detailed guides and documentation for two key comp
 2. **[I/O Scheduler Documentation](sched.md)**  
    - A comprehensive guide on I/O handlers, including how they function, configuration, and usage. This section will help you optimize your system's input/output performance
 
+3. **[CPU Tuning Documentation](cpu.md)**
+   - A detailed guide on optimizing CPU performance. This section covers CPU frequency scaling, governor settings, and some tuning parameters to enhance efficiency and responsiveness based on workload requirements
+
 ## 📑 How to Use the Documentation
 
 - **Sysctl Settings Documentation**:  
@@ -22,10 +25,15 @@ In this folder, you will find detailed guides and documentation for two key comp
   - Explains the role of I/O schedulers in your system and how to adjust configurations to improve I/O efficiency
   - Covers setup instructions, tuning options, and performance recommendations
 
+- **CPU Tuning Documentation**:
+  - Explains CPU frequency scaling, available governors, and how to configure them for optimal performance or power efficiency
+  - Covers tuning strategies, kernel parameters, and tools to monitor and adjust CPU behavior based on workload
+
 ## 🔗 Links to Important Files
 
 - [Sysctl Settings Documentation](sysctl.md)
 - [I/O Scheduler Documentation](sched.md)
+- [CPU Tuning Documentation](cpu.md)
 
 ## 📝 Contributions
 

@@ -13,3 +13,8 @@
 5. Added driver/load support in hardware information
 6. Some code review
 7. Added some tooltips
+
+===v1.0.2-ref===
+1. Refactored some part of code
+2. Added feature to install the app as system-wide systemd service
+3. Fixed some bugs/mistakes

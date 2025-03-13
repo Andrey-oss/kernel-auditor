@@ -1,7 +1,7 @@
 # Kernel Auditor
 
 ## Overview
-This project is a Flask-based web application designed for system monitoring, optimization, and tweaking on Linux systems. It provides detailed information about system resources, networking, hardware, processes, I/O schedulers, and sysctl settings. Users can also modify system settings directly from the interface
+This project is a Flask-based web application designed for system monitoring, optimization, and tweaking on Linux systems. It provides detailed information about system resources, networking, hardware, processes, I/O schedulers, sysctl settings and etc. Users can also modify system settings directly from the web interface
 
 ## Features
 - **System Information**: View detailed OS and hardware information
@@ -10,7 +10,7 @@ This project is a Flask-based web application designed for system monitoring, op
 - **I/O Scheduler Management**: Change and tune I/O schedulers dynamically
 - **Sysctl Tweaks**: Modify and apply kernel parameters in real-time
 - **API Support**: Expose endpoints for automation and remote management
-- **CPU Settings**: Edit CPU frequencies, governors and some features
+- **CPU Tuning**: Change governors, frequencies and features
 
 ## Installation
 ### Prerequisites
@@ -29,6 +29,15 @@ pip3 install -r requirements.txt
 
 # Run the application
 sudo python3 main.py
+```
+
+### Install as system-wide service
+```bash
+# You can install it by running
+bash scripts/make_syswide.sh
+
+# And if you wish to delete it
+bash scripts/del_syswide.sh
 ```
 
 ## Configuration

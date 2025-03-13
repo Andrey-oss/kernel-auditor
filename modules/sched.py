@@ -1,5 +1,5 @@
+from modules.run import run_cmd
 import os
-import subprocess
 
 OS_PATH = '/sys/block'
 
@@ -11,7 +11,7 @@ def get_schedulers() -> dict:
 
     return scheds
 
-def def_values() -> dict:
+def get_sched_values() -> dict:
     values = {}
 
     for device in os.listdir(OS_PATH):
@@ -27,41 +27,42 @@ def def_values() -> dict:
                     except Exception:
                         pass
                     else:
-                        result = subprocess.run(f'echo "{value}" > {file_path}', shell=True, stderr=subprocess.PIPE, text=True)
-                        if result.returncode == 0:
+                        cmd = f'echo "{value}" > {file_path}'
+                        error = run_cmd(cmd)
+                        if not error:
                             subvalues[key] = value
+
         values[device] = subvalues
 
     return values
 
-def set_sched(data):
-    try:
+def set_sched(device, scheduler) -> dict:
+    '''try:
         device = data['device']
         scheduler = data['scheduler']
     except Exception as e:
-        return {"status": e}
+        return {"status": e}'''
 
     cmd = f'echo "{scheduler}" > /sys/block/{device}/queue/scheduler'
-    result = subprocess.run(cmd, shell=True, stderr=subprocess.PIPE, text=True)
+    error = run_cmd(cmd)
     
-    if result.returncode != 0 or result.stderr:
-        return {"status": result.stderr.strip()}
-    else:
-        return {"status": "ok"}
+    if error:
+        return {"status": error}
+    
+    return {"status": "ok"}
 
-def set_tun(data):
+def set_tun(data) -> dict:
     errors = {}
     
     for k, v in data.items():    
-        if k == 'device':
-            pass
-        else:
-            result = subprocess.run(f'echo {v} > /sys/block/{data['device']}/queue/{k}', shell=True, stderr=subprocess.PIPE, text=True)
+        if k != 'device':
+            cmd = f'echo {v} > /sys/block/{data['device']}/queue/{k}'
+            error = run_cmd(cmd)
 
-            if result.returncode != 0 or result.stderr:
-                errors[k] = result.stderr.strip()
+            if error:
+                errors[k] = error
     
-    if len(errors) == 0:
+    if not errors:
         return {'status': 'ok'}
 
     return {'status': str(errors)}

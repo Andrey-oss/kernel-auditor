@@ -27,16 +27,16 @@
                         <h6 class="mt-4">Advanced Tuning</h6>
                         <form class="tuning-form" data-device="{{ device }}">
                             <label for="nr_requests-{{ device }}" class="form-label mt-2" data-bs-toggle="tooltip" title="nr_requests">Queue depth (number of I/O requests that can be handled simultaneously)</label>
-                            <input type="number" class="form-control" id="nr_requests-{{ device }}" placeholder="Enter values ({{ def_values[device]['nr_requests'] }})" min="1" value="{{ def_values[device]['nr_requests'] }}">
+                            <input type="number" class="form-control" id="nr_requests-{{ device }}" placeholder="Enter values ({{ scheduler_values[device]['nr_requests'] }})" min="1" value="{{ scheduler_values[device]['nr_requests'] }}">
                             
                             <label for="read_ahead_kb-{{ device }}" class="form-label mt-2" data-bs-toggle="tooltip" title="read_ahead_kb">The amount of data (in kilobytes) that the system pre-reads from the storage device to optimize read performance</label>
-                            <input type="number" class="form-control" id="read_ahead_kb-{{ device }}" placeholder="Enter values ({{ def_values[device]['read_ahead_kb'] }})" min="0" value="{{ def_values[device]['read_ahead_kb'] }}">
+                            <input type="number" class="form-control" id="read_ahead_kb-{{ device }}" placeholder="Enter values ({{ scheduler_values[device]['read_ahead_kb'] }})" min="0" value="{{ scheduler_values[device]['read_ahead_kb'] }}">
 
                             <label for="max_sectors_kb-{{ device }}" class="form-label mt-2" data-bs-toggle="tooltip" title="max_sectors_kb">Maximum size of data KB that can be processed per single I/O request</label>
-                            <input type="number" class="form-control" id="max_sectors_kb-{{ device }}" placeholder="Enter values ({{ def_values[device]['max_sectors_kb'] }})" min="1" value="{{ def_values[device]['max_sectors_kb'] }}">
+                            <input type="number" class="form-control" id="max_sectors_kb-{{ device }}" placeholder="Enter values ({{ scheduler_values[device]['max_sectors_kb'] }})" min="1" value="{{ scheduler_values[device]['max_sectors_kb'] }}">
 
                             <label for="io_timeout-{{ device }}" class="form-label mt-2" data-bs-toggle="tooltip" title="io_timeout">Timeout for I/O operations</label>
-                            <input type="number" class="form-control" id="io_timeout-{{ device }}" placeholder="Enter values ({{ def_values[device]['io_timeout'] }})" min="1" value="{{ def_values[device]['io_timeout'] }}">
+                            <input type="number" class="form-control" id="io_timeout-{{ device }}" placeholder="Enter values ({{ scheduler_values[device]['io_timeout'] }})" min="1" value="{{ scheduler_values[device]['io_timeout'] }}">
                             
                             <button type="button" class="btn btn-info mt-3 save-tuning">Apply Tuning</button>
                         </form>

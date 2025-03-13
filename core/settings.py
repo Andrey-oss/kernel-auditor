@@ -6,5 +6,5 @@ def cfg_parser() -> dict:
             cfg = json.load(cfg)
     except Exception as e:
         exit("[-] Settings file doesn't exist!")
-    else:
-        return cfg
+    
+    return cfg

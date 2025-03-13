@@ -1,7 +1,8 @@
-import subprocess
+from modules.run import run_cmd, run_cmd_with_output
 
-def parse_sysctl():
-    result = subprocess.run(['sysctl', '-a'], capture_output=True, text=True)
+def parse_sysctl() -> dict:
+    cmd = 'sysctl -a'
+    result = run_cmd_with_output(cmd)
     sysctl_data = {}
 
     for line in result.stdout.splitlines():
@@ -11,11 +12,11 @@ def parse_sysctl():
 
     return sysctl_data
 
-def set_sysctls(data):
-    result = subprocess.run(['sudo', 'sysctl', f"{data['name']}={data['value']}"], stderr=subprocess.PIPE, text=True)
+def set_sysctls(data) -> dict:
+    cmd = f'sysctl {data['name']}={data['value']}'
+    error = run_cmd(cmd)
 
-    if result.returncode != 0 or result.stderr:
-    #    return {'status': str({data['name']: result.stderr.strip()})}
+    if error:
         return {'status': 'You entered the wrong value of the parameter'}
     
     return {'status': 'ok'}
