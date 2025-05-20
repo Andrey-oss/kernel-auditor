@@ -1,0 +1,146 @@
+from modules.run import run_cmd_with_output, run_cmd
+from modules.sysctl import set_sysctl_param
+from getmac import get_mac_address
+import psutil
+
+def get_tcp_algorithms() -> list:
+    """
+    Returns allowed tcp algorithms for usage (no argument required)
+    """
+    
+    result = run_cmd_with_output('sysctl -n net.ipv4.tcp_allowed_congestion_control').split()
+    return result
+
+def get_current_algo() -> str:
+    """
+    Returns current TCP congestion algorithm (no argument required)
+    """
+
+    result = run_cmd_with_output('sysctl -n net.ipv4.tcp_congestion_control').strip()
+    return result
+
+def set_tcp_algo(algorithm: str) -> dict:
+    """
+    Set new TCP congestion algorithm. API usage:
+
+    algorithm = 'bbr'
+
+    """
+    result = run_cmd_with_output(f'sysctl net.ipv4.tcp_congestion_control={algorithm}')
+
+    if 'No such file or directory' in result:
+        return {'status': 'error', 'message': result}
+
+    return {'status': 'ok', 'message': f'TCP Algorithm to {algorithm} was changed successfully'}
+
+def mac_changer(data: dict) -> dict:
+    """
+    Set new MAC Address. API Usage:
+    
+    {
+        'iface': 'wlan0',
+        'mac': 'AA:00:11:22:33:44'
+    }
+    """
+
+    iface = data['iface']
+    mac = data['mac']
+
+    commands = [
+        f'ip link set dev {iface} down',
+        f'ip link set dev {iface} address {mac}',
+        f'ip link set dev {iface} up',
+    ]
+    
+    for cmd in commands:
+        res = run_cmd(cmd)
+        if res:
+            return {'status': 'error', 'message': res}
+    
+    return {'status': 'ok', 'message': 'MAC Address was changed successfully!'}
+
+def get_network_ifaces() -> list:
+    """
+    Returns list of network interfaces (no argument required)
+    """
+
+    iface_dict = psutil.net_if_addrs().keys()
+    return list(iface_dict)
+
+'''def get_network_dict(): # Contains dict with interface and mac
+    return dict(zip(get_network_ifaces(), get_mac_address()))''' # Currently useless :)
+
+def parse_resolv() -> list:
+    """
+    Parses resolv.conf (no argument required)
+    """
+
+    data = []
+    file = open('/etc/resolv.conf', 'r')
+
+    for line in file:
+        #if 'nameserver' in line: # Because resolv.conf can have some options, so this condition should be removed 
+        data.append(line.strip())
+
+    return data
+
+def set_dns(data: dict) -> dict:
+    """
+    Changes DNS settings via resolv.conf. API Usage:
+
+    '''
+    nameserver: 1.2.3.4
+    nameserver: 5.5.5.5
+    '''
+    
+    """
+
+    try:
+        file = open('/etc/resolv.conf', 'w')
+        file.write(data)
+        file.close()
+    except Exception as e:
+        return {"status": "error", "message": e}
+    
+    return {"status": "ok", "message": "resolv.conf was updated successfully!"}
+
+def get_socket_buffs() -> dict:
+    """
+    Returns socket_buffs settings (no argument required)
+    """
+    
+    output_dict = {}
+
+    rw_params = {
+        'net.core.rmem_default': 'Default receiving socket buffer',
+        'net.core.wmem_default': 'Default sending socket buffer',
+
+        'net.core.rmem_max': 'Max receiving socket buffer',
+        'net.core.wmem_max': 'Max sending buffer',
+    }
+
+    # Get dynamically values from rw_params
+
+    for param, desc in rw_params.items():
+        output_dict[param] = {desc: run_cmd_with_output(f'sysctl -n {param}').strip()}
+
+    return output_dict
+
+def set_socket_buffs(data: dict) -> dict:
+    """
+    Sets socket buffers. API Usage:
+    {
+        'net.core.wmem_max': '55555'
+    }
+    """
+
+    for param, value in data.items():
+        error = set_sysctl_param({
+            'name': param,
+            'value': value,
+        })
+        
+        if error['status'] == 'error':
+            return {"status": "error", "message": error['message']}
+    
+    return {"status": "ok", "message": "Socket buffers changed successfully!"}

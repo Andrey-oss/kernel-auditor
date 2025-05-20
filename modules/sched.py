@@ -4,6 +4,10 @@ import os
 OS_PATH = '/sys/block'
 
 def get_schedulers() -> dict:
+    """
+    Returns all available schedulers (no argument required):
+    """
+
     scheds = {}
 
     for device in os.listdir(OS_PATH):
@@ -12,6 +16,10 @@ def get_schedulers() -> dict:
     return scheds
 
 def get_sched_values() -> dict:
+    """
+    Returns values from available schedulers (no argument required):
+    """
+
     values = {}
 
     for device in os.listdir(OS_PATH):
@@ -36,33 +44,51 @@ def get_sched_values() -> dict:
 
     return values
 
-def set_sched(device, scheduler) -> dict:
-    '''try:
-        device = data['device']
-        scheduler = data['scheduler']
-    except Exception as e:
-        return {"status": e}'''
+def set_sched(data: dict) -> dict:
+    """
+    Set drive scheduler. API usage (example of function call):
+    
+    {
+        'device': 'sda'
+        'scheduler': 'none'
+    }
+    """
 
+    device = data['device']
+    scheduler = data['scheduler']
+    
     cmd = f'echo "{scheduler}" > /sys/block/{device}/queue/scheduler'
     error = run_cmd(cmd)
     
-    if error:
-        return {"status": error}
+    if not error:
+        return {'status': 'ok', 'message': 'Scheduler has been changed successfully!'}
     
-    return {"status": "ok"}
+    return {'status': 'error', 'message': error}
 
-def set_tun(data) -> dict:
+def set_tun(data: dict) -> dict:
+    """
+    Set new settings for scheduler. API usage (example of function call):
+
+    {
+        'device': 'sda',
+        'nr_requests': '128'
+        'read_ahead_kb': '128'
+        'max_sectors_kb': '256'
+        'io_timeout': '30000'
+    }
+    """
+
     errors = {}
     
-    for k, v in data.items():    
-        if k != 'device':
-            cmd = f'echo {v} > /sys/block/{data['device']}/queue/{k}'
+    for param, value in data.items():    
+        if param != 'device':
+            cmd = f'echo {value} > /sys/block/{data['device']}/queue/{param}'
             error = run_cmd(cmd)
 
             if error:
-                errors[k] = error
+                errors[param] = error
     
     if not errors:
-        return {'status': 'ok'}
+        return {'status': 'ok', 'message': 'New tunning applied with no errors!'}
 
-    return {'status': str(errors)}
+    return {'status': 'error', 'message': str(errors)}

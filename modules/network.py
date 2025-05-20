@@ -1,7 +1,7 @@
+from core.settings import cfg_parser
 import psutil
 import socket
 import requests
-from core.settings import cfg_parser
 
 cfg = cfg_parser() # It is not dynamic variable, it won't be updated after some changes in settings
 
@@ -11,6 +11,10 @@ except ImportError:
     exit("[FATAL] Speedtest doesn't installed, check your installation")
 
 def get_network_info() -> dict:
+    """
+    Returns network info (no argument required)
+    """
+
     network_info = {}
     addrs = psutil.net_if_addrs()
     io_counters = psutil.net_io_counters(pernic=True)
@@ -27,12 +31,16 @@ def get_network_info() -> dict:
                 'ip': ip_address,
                 'received': io_counters.get(interface, None).bytes_recv if interface in io_counters else 0,
                 'sent': io_counters.get(interface, None).bytes_sent if interface in io_counters else 0,
-                'speed': io_counters.get(interface, None).bytes_recv + io_counters.get(interface, None).bytes_sent if interface in io_counters else 0
+                'speed': io_counters.get(interface, None).bytes_recv + io_counters.get(interface, None).bytes_sent if interface in io_counters else 0,
             }
     
     return network_info
 
 def get_speed_test() -> dict:
+    """
+    Returns speed test, which includes ping, UP/DL speed (no argument required)
+    """
+
     if cfg['speed_test']:
         try:
             st = speedtest.Speedtest()
@@ -47,6 +55,9 @@ def get_speed_test() -> dict:
     return {'download': False, 'upload': False, 'ping': False}
 
 def get_ip_info() -> dict:
+    """
+    Returns IP Information (no argument requiredd)
+    """
     try:
         r = requests.get("https://ifconfig.co/json", timeout=5).json()
     except Exception:

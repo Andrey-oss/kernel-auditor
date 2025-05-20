@@ -1,7 +1,4 @@
-from core.settings import cfg_parser
 import os
-
-cfg = cfg_parser()
 
 def check_root() -> bool:
     return os.getuid() == 0

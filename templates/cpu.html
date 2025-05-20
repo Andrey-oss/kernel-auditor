@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}General CPU Tuning{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">General CPU Tuning</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary text-center">CPU Settings</h5>
+                    <form id="cpu-tuning-form">
+                        {% for key, value in cpu_settings.items() %}
+                            {% if value is not iterable or value is string %}
+                                <div class="mb-3">
+                                    {% if key == 'current_governor' %}
+                                        <h6 class="mt-4"><label class="form-label">Select Governor:</label></h6>
+                                        <select class="form-select" name="{{ key }}">
+                                            {% for option in cpu_settings['available_governors'] %}
+                                                <option value="{{ option }}" {% if cpu_settings['current_governor'] == option %}selected{% endif %}>
+                                                    {{ option }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    {% elif key == 'min_freq' %}
+                                        <h6 class="mt-4"><label class="form-label">Min Frequency (Hz):</label></h6>
+                                        <select class="form-select" name="{{ key }}">
+                                            {% for option in cpu_settings['available_frequencies'] %}
+                                                <option value="{{ option }}" {% if cpu_settings['min_freq'] == option %}selected{% endif %}>
+                                                    {{ option }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    {% elif key == 'max_freq' %}
+                                        <h6 class="mt-4"><label class="form-label">Max Frequency (Hz):</label></h6>
+                                        <select class="form-select" name="{{ key }}">
+                                            {% for option in cpu_settings['available_frequencies'] %}
+                                                <option value="{{ option }}" {% if cpu_settings['max_freq'] == option %}selected{% endif %}>
+                                                    {{ option }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    {% else %}
+                                        <h6 class="mt-4">{{ key|replace('_', ' ')|title }}</h6>
+                                        <input type="checkbox" class="form-check-input" name="{{ key }}" {% if value == '1' %}checked{% endif %}>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success mt-3 w-100">Apply Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("cpu-tuning-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const form = this;
+    const inputs = form.querySelectorAll("input, select");
+    const jsonData = {};
+
+    inputs.forEach(input => {
+        if (input.type === "checkbox") {
+            jsonData[input.name] = input.checked ? "1" : "0";
+        } else {
+            jsonData[input.name] = input.value;
+        }
+    });
+
+    fetch("/api/set_cpu_tuning", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    });
+});
+</script>
+{% endblock %}

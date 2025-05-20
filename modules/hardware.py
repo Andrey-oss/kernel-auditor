@@ -1,10 +1,15 @@
+from datetime import datetime
+from getmac import get_mac_address as gma
 import psutil
 import GPUtil
-import time
 import socket
-from datetime import datetime
+import time
 
 def get_hardware_info() -> dict:
+    """
+    Returns hardware info (no argument required)
+    """
+
     gpus = GPUtil.getGPUs()
     gpu_info = gpus[0] if gpus else None
 
@@ -45,6 +50,7 @@ def get_hardware_info() -> dict:
         "net_adapter": main_adapter,
         "net_speed": adapter_speed,
         "ip_address": socket.gethostbyname(socket.gethostname()),
+        "mac": gma(),
 
         "active_processes": len(psutil.pids()),
         "system_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

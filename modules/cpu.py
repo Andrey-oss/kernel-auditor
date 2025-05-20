@@ -1,4 +1,5 @@
 from modules.run import run_cmd
+from modules.helpers import *
 import os
 import re
 
@@ -23,16 +24,15 @@ CHECK_DICT_PARAMS = {
     'cpb': 'cpb'
 } # When values must be checked for availabilty
 
+PARAMS_VARS = [AVAILABLE_DICT_PARAMS, VALUE_DICT_PARAMS, CHECK_DICT_PARAMS]
+
 def _get_cpus_list() -> list:
     return sorted(filter(regexp.search, os.listdir(OS_PATH)))
 
 def _parse_param(param: str, cpu: str) -> list:
     f = open(f"{OS_PATH}/{cpu}/cpufreq/{param}").read().split()
 
-    if len(f) == 1:
-        return f[0]
-
-    return f
+    return f[0] if len(f) == 1 else f
 
 def _check_param_availabilty(param: str) -> bool:
     file_path = f"{OS_PATH}/cpu1/cpufreq/{param}"
@@ -51,6 +51,10 @@ def _check_param_availabilty(param: str) -> bool:
     return True
 
 def cpu_info() -> dict:
+    """
+    Returns information from every CPU core (no argument required)
+    """
+
     result = {}
 
     for cpu in _get_cpus_list():
@@ -63,48 +67,89 @@ def cpu_info() -> dict:
 
     return result
 
-def set_governor(cpu, governor) -> dict:
-    cmd = f'echo {governor} > {OS_PATH}/{cpu}/cpufreq/scaling_governor'
-    error = run_cmd(cmd)
+def general_cpu_info():
+    """
+    Get general cpu info (no argument required)
+    """
 
-    if error:
-        return {'status': error}
+    general_result = {} # output
+    result = cpu_info()
+
+    name_dict_params_with_kv = {
+        'list_params': [k for k in AVAILABLE_DICT_PARAMS.keys()],
+        'str_params': [k for k in VALUE_DICT_PARAMS.keys()],
+        'int_params': [k for k in CHECK_DICT_PARAMS.keys()]
+    }
+        
+    for k, v in name_dict_params_with_kv.items():
+        for i in v:
+            if k == 'list_params':
+                general_result[i] = [el for el in list_intersection(result, i)]
+            else:
+                try:
+                    general_result[i] = [el for el in str_intersection(result, i)][0]
+                except Exception:
+                    return {"status": "error", "message": "CPU Governors/Features are not the same"}
+
+    return general_result
+
+def set_params(data: dict) -> dict:
+    """
+    Sets params for certain cpu core number. API Usage:
     
-    return {'status': 'ok'}
+    {
+        'cpu': 'cpu0',
+        'scaling_min_freq': '1400000',
+        'scaling_max_freq': '3000000'
+    }
+    """
 
-def set_frequencies(min_freq, max_freq, cpu) -> dict:
-    if min_freq > max_freq:
-        return {'status': 'Minimum frequency must be lower than maximum frequency'}
-
-    min_freq_cmd = f'echo {min_freq} > {OS_PATH}/{cpu}/cpufreq/scaling_min_freq'
-    max_freq_cmd = f'echo {max_freq} > {OS_PATH}/{cpu}/cpufreq/scaling_max_freq'
-
-    min_freq_error = run_cmd(min_freq_cmd)
-    max_freq_error = run_cmd(max_freq_cmd)
-
-    if min_freq_error:
-        return {'status': min_freq_error}
-    
-    if max_freq_error:
-        return {'status': max_freq_error}
-    
-    return {'status': 'ok'}
-
-def set_features(data) -> dict:
     errors = {}
     file_path = f'{OS_PATH}/{data['cpu']}/cpufreq'
-    for k, v in data.items():
-        if k != 'cpu':
-            v = 1 if v else 0
+    for param, value in data.items():
+        if param != 'cpu':
 
-            cmd = f'echo {v} > {file_path}/{k}'
+            cmd = f'echo {value} > {file_path}/{param}'
 
             error = run_cmd(cmd)
 
             if error:
-                errors[k] = error
+                errors[param] = error
     
     if not errors:
-        return {'status': 'ok'}
+        return {'status': 'ok', 'message': f'CPU parameters were changed successfully for CPU {data['cpu']}!'}
+    
+    return {'status': 'ok', 'message': str(errors)}
 
-    return {'status': str(errors)}
+def set_general_tuning(data: dict) -> dict:
+    """
+    Set general params for all cpu cores. API Usage:
+    
+    {
+        'current_governor': 'schedutil',
+        'min_freq': '1400000',
+        'max_freq': '3000000',
+        'precision_boost': '1',
+        'cpb': '1'
+    }
+    """
+
+    arg = {}
+    errors = {}
+
+    for cpu in _get_cpus_list():
+        arg['cpu'] = cpu
+        for param, value in data.items():
+            if param != 'cpu':
+                arg[get_all_merged_params(PARAMS_VARS)[param]] = value
+            else:
+                arg[param] = value
+            
+        error = set_params(arg)
+        if error['status'] != 'ok':
+            errors[cpu] = error
+    
+    if not errors:
+        return {'status': 'ok', 'message': 'CPU settings were changed successfully!'}
+    
+    return {'status': 'error', 'message': str(errors)}

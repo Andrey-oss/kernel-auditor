@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Network Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Network Tuning & Configuration</h1>
+
+    <div class="row g-4">
+
+        <!-- TCP Congestion Control -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">TCP Congestion Algorithm</h5>
+                    <form id="tcp-congestion-form">
+                        <label class="form-label d-block">Current Algorithm: {{ network_data.current_algorithm }}</label>
+                        <label class="form-label">Available Algorithms</label>
+                        <select id="tcp_congestion" name="congestion_algorithm" class="form-select">
+                            {% for algo in network_data.tcp_algorithms %}
+                                <option value="{{ algo }}">{{ algo }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-success mt-3">Apply</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAC Changer -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-info">
+                <div class="card-body">
+                    <h5 class="card-title">MAC Address Changer</h5>
+                    <form id="mac-form">
+                        <label class="form-label">Interface</label>
+                        <select name="interface" class="form-select">
+                            {% for iface in network_data.network_ifaces %}
+                                <option value="{{ iface }}">{{ iface }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label class="form-label mt-3">New MAC Address</label>
+                        <input type="text" class="form-control" name="mac_address" placeholder="e.g. 00:11:22:33:44:55">
+
+                        <button type="submit" class="btn btn-success mt-3">Change MAC</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Socket Buffers -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Socket Buffers</h5>
+                    <form id="buffer-form">
+                        {% for parameter, title_dict in network_data.socket_buff.items() %}
+                            {% for title, param_value in title_dict.items() %}
+                                <label class="form-label" data-bs-toggle="tooltip" title="{{ parameter }}">{{ title }} (in bytes)</label>
+                                <input class="form-control" type="number" name="{{ parameter }}" value="{{ param_value }}">
+                            {% endfor %}
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success mt-3">Apply Buffers</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resolv.conf -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body">
+                    <h5 class="card-title">DNS (resolv.conf)</h5>
+                    <form id="dns-form">
+                        <label class="form-label">Nameservers (one per line)</label>
+                        <textarea class="form-control" name="nameservers" rows="4">{{ network_data.parsed_resolv_conf | join('\n') }}</textarea>
+                        <button type="submit" class="btn btn-success mt-3">Update resolv.conf</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Enable Bootstrap tooltips
+    if (window.bootstrap) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+    }
+
+    // TCP Congestion Algorithm
+    document.getElementById("tcp-congestion-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const algorithm = document.getElementById("tcp_congestion").value;
+
+        fetch("/api/set_tcp_congestion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ algorithm })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    });
+
+    // MAC Changer
+    document.getElementById("mac-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const iface = document.querySelector("select[name='interface']").value;
+        const mac = document.querySelector("input[name='mac_address']").value;
+
+        fetch("/api/change_mac", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ iface, mac })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    });
+
+    // DNS (resolv.conf)
+    document.getElementById("dns-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const content = document.querySelector("textarea[name='nameservers']").value;
+
+        fetch("/api/update_resolv", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    });
+
+    // Socket Buffers
+    document.getElementById("buffer-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const params = {};
+        document.querySelectorAll("#buffer-form input").forEach(input => {
+            if (input.name) {
+                params[input.name] = input.value;
+            }
+        });
+
+        fetch("/api/set_socket_buffers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(params)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    });
+
+});
+</script>
+{% endblock %}

@@ -91,12 +91,12 @@
         document.querySelectorAll(".save-governor").forEach(button => {
             button.addEventListener("click", function () {
                 const cpu = this.closest(".cpu-governor-form").getAttribute("data-cpu");
-                const governor = this.closest(".cpu-governor-form").querySelector(".governor-select").value;
+                const scaling_governor = this.closest(".cpu-governor-form").querySelector(".governor-select").value;
 
-                fetch("/api/set_cpu_governor", {
+                fetch("/api/set_cpu_params", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ cpu, governor }),
+                    body: JSON.stringify({ cpu, scaling_governor }),
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -110,13 +110,13 @@
         document.querySelectorAll(".save-freq").forEach(button => {
             button.addEventListener("click", function () {
                 const cpu = this.closest(".cpu-freq-form").getAttribute("data-cpu");
-                const min_freq = this.closest(".cpu-freq-form").querySelector("#min-freq-" + cpu).value;
-                const max_freq = this.closest(".cpu-freq-form").querySelector("#max-freq-" + cpu).value;
+                const scaling_min_freq = this.closest(".cpu-freq-form").querySelector("#min-freq-" + cpu).value;
+                const scaling_max_freq = this.closest(".cpu-freq-form").querySelector("#max-freq-" + cpu).value;
 
-                fetch("/api/set_cpu_frequency", {
+                fetch("/api/set_cpu_params", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ cpu, min_freq, max_freq }),
+                    body: JSON.stringify({ cpu, scaling_min_freq, scaling_max_freq }),
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -126,18 +126,18 @@
             });
         });
 
-        // Apply some CPU Features
+                // Apply some CPU Features
         document.querySelectorAll(".save-boost").forEach(button => {
             button.addEventListener("click", function () {
                 const cpu = this.closest(".cpu-boost-form").getAttribute("data-cpu");
 
                 // Check if CPB is presented
                 const cpb_checkbox = this.closest(".cpu-boost-form").querySelector(".cpb-checkbox");
-                const cpb = cpb_checkbox ? cpb_checkbox.checked : undefined;
+                const cpb = cpb_checkbox ? (cpb_checkbox.checked ? 1 : 0) : undefined;
 
                 // Check if Precision boost is presented
                 const precision_boost_checkbox = this.closest(".cpu-boost-form").querySelector(".precision_boost-checkbox");
-                const precision_boost = precision_boost_checkbox ? precision_boost_checkbox.checked : undefined;
+                const precision_boost = precision_boost_checkbox ? (precision_boost_checkbox.checked ? 1 : 0) : undefined;
 
                 const requestData = { cpu };
                 // CPB
@@ -150,7 +150,7 @@
                     requestData.boost = precision_boost;
                 }
 
-                fetch("/api/set_cpu_features", {
+                fetch("/api/set_cpu_params", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(requestData),
@@ -162,6 +162,7 @@
                 });
             });
         });
+
 
 
     });

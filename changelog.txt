@@ -18,3 +18,13 @@
 1. Refactored some part of code
 2. Added feature to install the app as system-wide systemd service
 3. Fixed some bugs/mistakes
+
+===v1.0.3===
+1. Added General CPU setting (for all CPU's cores)
+2. Added Network settings
+3. Сode refactoring
+4. Added Makefile for convenient management (script were deleted)
+5. Some API Changes (better structure of response, which contains status and message)
+6. Added documentation for every executable function for developers
+7. Fixed some bugs with service and templates
+8. Some changes in templates (more beautiful design in tooltips)

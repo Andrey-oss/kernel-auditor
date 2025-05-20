@@ -11,6 +11,7 @@ This project is a Flask-based web application designed for system monitoring, op
 - **Sysctl Tweaks**: Modify and apply kernel parameters in real-time
 - **API Support**: Expose endpoints for automation and remote management
 - **CPU Tuning**: Change governors, frequencies and features
+- **Network Settings**: Change and modify some network preferences easily
 
 ## Installation
 ### Prerequisites
@@ -34,16 +35,19 @@ sudo python3 main.py
 ### Install as system-wide service
 ```bash
 # You can install it by running
-bash scripts/make_syswide.sh
+make make_syswide
 
 # And if you wish to delete it
-bash scripts/del_syswide.sh
+make del_syswide
+
+# Also you can free some space on your drive:
+make clean
 ```
 
 ## Configuration
-The application uses a configuration file to manage settings. You can adjust settings in `core/settings.py`
+The application uses a configuration file to manage settings. You can adjust settings in `settings.json`
 
-## API Endpoints
+## Some API Endpoints
 ### Scheduler Management
 - **Set I/O Scheduler**: `POST /api/set_scheduler`
   ```json

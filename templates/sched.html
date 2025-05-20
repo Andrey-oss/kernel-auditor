@@ -49,6 +49,11 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            if (window.bootstrap) {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+            }
+
             document.querySelectorAll(".save-scheduler").forEach(button => {
                 button.addEventListener("click", function() {
                     let form = this.closest(".scheduler-form");

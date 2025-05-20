@@ -15,6 +15,9 @@ In this folder, you will find detailed guides and documentation for two key comp
 3. **[CPU Tuning Documentation](cpu.md)**
    - A detailed guide on optimizing CPU performance. This section covers CPU frequency scaling, governor settings, and some tuning parameters to enhance efficiency and responsiveness based on workload requirements
 
+4. **[Network Settings Documentation](network.md)**  
+   - Covers configuration and tuning of core network stack components in Linux. Includes TCP congestion control algorithms, MAC address modification, resolver settings, IP forwarding, TCP behaviors, and socket buffer tuning
+
 ## 📑 How to Use the Documentation
 
 - **Sysctl Settings Documentation**:  
@@ -29,11 +32,19 @@ In this folder, you will find detailed guides and documentation for two key comp
   - Explains CPU frequency scaling, available governors, and how to configure them for optimal performance or power efficiency
   - Covers tuning strategies, kernel parameters, and tools to monitor and adjust CPU behavior based on workload
 
+- **Network Settings Documentation**:  
+  - Describes how to select and apply different TCP congestion control algorithms for performance tuning  
+  - Details how to safely change the MAC address of a network interface  
+  - Explains how to modify `/etc/resolv.conf` for DNS behavior  
+  - Provides guidance on toggling IP forwarding, controlling TCP slow start behavior, and adjusting connection timeouts  
+  - Includes methods for tuning socket buffers and transmission queues to suit different workloads (low-latency, high-throughput, etc.)
+
 ## 🔗 Links to Important Files
 
 - [Sysctl Settings Documentation](sysctl.md)
 - [I/O Scheduler Documentation](sched.md)
 - [CPU Tuning Documentation](cpu.md)
+- [Network Settings Documentation](network_settings.md)
 
 ## 📝 Contributions
 
