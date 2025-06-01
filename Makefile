@@ -44,4 +44,4 @@ run:
 
 stop: ## Stop the service
 stop:
-	sudo systemctl stop kernel_auditor
+	sudo systemctl stop $(PROJECT_NAME)
