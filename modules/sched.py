@@ -11,7 +11,10 @@ def get_schedulers() -> dict:
     scheds = {}
 
     for device in os.listdir(OS_PATH):
-        scheds[device] = [sched for sched in open(f"{OS_PATH}/{device}/queue/scheduler").read().split()]
+        try:
+           scheds[device] = [sched for sched in open(f"{OS_PATH}/{device}/queue/scheduler", encoding='utf-8').read().split()]
+        except FileNotFoundError:
+           pass
 
     return scheds
 
