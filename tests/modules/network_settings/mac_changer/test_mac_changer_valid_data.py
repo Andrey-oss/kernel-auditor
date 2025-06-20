@@ -1,4 +1,6 @@
-'''Tests with valid data for mac_changer function'''
+'''Tests with valid data for mac_changer function
+NOTE: If the test throws an error due to an incorrect device, change the network interface in the test to yours
+This will be fixed in the future'''
 
 from modules.network_settings import mac_changer
 
