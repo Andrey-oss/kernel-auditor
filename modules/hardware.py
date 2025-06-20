@@ -1,9 +1,11 @@
+'''Module for hardware information'''
+
 from datetime import datetime
+import socket
+import time
 from getmac import get_mac_address as gma
 import psutil
 import GPUtil
-import socket
-import time
 
 def get_hardware_info() -> dict:
     """
@@ -17,7 +19,7 @@ def get_hardware_info() -> dict:
     net_stats = psutil.net_if_stats()
     main_adapter = list(net_io.keys())[1] if net_io else "Unknown"
     adapter_speed = net_stats[main_adapter].speed if main_adapter in net_stats else "N/A"
-    
+
     uptime_seconds = time.time() - psutil.boot_time()
     uptime_string = f"{int(uptime_seconds // 3600)}h {int((uptime_seconds % 3600) // 60)}m"
 

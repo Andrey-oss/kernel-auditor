@@ -1,14 +1,17 @@
-from core.settings import cfg_parser
-import psutil
+'''Module for network information'''
+
 import socket
+import psutil
 import requests
+from core.settings import cfg_parser
 
 cfg = cfg_parser() # It is not dynamic variable, it won't be updated after some changes in settings
 
 try:
     import speedtest
 except ImportError:
-    exit("[FATAL] Speedtest doesn't installed, check your installation")
+    if cfg['speed_test']:
+        exit("[FATAL] Speedtest doesn't installed, check your installation")
 
 def get_network_info() -> dict:
     """
@@ -18,14 +21,14 @@ def get_network_info() -> dict:
     network_info = {}
     addrs = psutil.net_if_addrs()
     io_counters = psutil.net_io_counters(pernic=True)
-    
+
     for interface, addresses in addrs.items():
         ip_address = None
         for addr in addresses:
             if addr.family == socket.AF_INET:
                 ip_address = addr.address
                 break
-        
+
         if ip_address:
             network_info[interface] = {
                 'ip': ip_address,
@@ -33,7 +36,7 @@ def get_network_info() -> dict:
                 'sent': io_counters.get(interface, None).bytes_sent if interface in io_counters else 0,
                 'speed': io_counters.get(interface, None).bytes_recv + io_counters.get(interface, None).bytes_sent if interface in io_counters else 0,
             }
-    
+
     return network_info
 
 def get_speed_test() -> dict:
@@ -58,8 +61,9 @@ def get_ip_info() -> dict:
     """
     Returns IP Information (no argument requiredd)
     """
+
     try:
         r = requests.get("https://ifconfig.co/json", timeout=5).json()
     except Exception:
         return {"Internet": "disabled"}
-    return {k.capitalize().replace("_", " "): v for k, v in r.items() if k != 'user_agent'} # I was trying to display name and info via dict :P
+    return {k.capitalize().replace("_", " "): v for k, v in r.items() if k != 'user_agent'} # I attempted to retrieve and display the name and related information from a dictionary

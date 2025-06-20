@@ -1,7 +1,11 @@
+'''Get process list with PID, name etc'''
+
 from datetime import datetime
 import psutil
 
 def get_processes():
+    '''Get processes via psutil'''
+
     processes = []
     for proc in psutil.process_iter(attrs=['pid', 'name', 'cpu_percent', 'memory_info', 'status', 'create_time']):
         try:

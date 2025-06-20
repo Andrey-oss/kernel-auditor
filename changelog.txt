@@ -28,3 +28,13 @@
 6. Added documentation for every executable function for developers
 7. Fixed some bugs with service and templates
 8. Some changes in templates (more beautiful design in tooltips)
+
+===v1.0.4-ref===
+1. Added tests (due to sudo limitations in Github, it won't be launched in Actions)
+2. Some changes in Makefile for better output
+3. Fixed some bugs
+4. Some code refactored to some PEP standards
+5. Reviewed some security problems
+6. Added data validators as decorators
+7. Rewrited some part of comments
+8. Added bash script for changing processor's governor from console (you can install it in /bin if you wish)

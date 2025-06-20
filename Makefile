@@ -4,8 +4,10 @@ INSTALL_PATH:=/usr/share/
 SYSTEMD_SERVICE_PATH:=/etc/systemd/system/
 PWD=$(shell pwd)
 
+.PHONY: tests
+
 define find.functions
-    grep -hF "##" $(MAKEFILE_LIST) | grep -vF "grep" | sed -e 's/\\$$//' -e 's/##//'
+     @awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "%-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 endef
 
 help: ## Returns command documentations
@@ -34,7 +36,7 @@ remake_syswide:
 	sudo systemctl start $(PROJECT_NAME)
 	sudo systemctl daemon-reload
 
-clean: ## Cleans __pycache__ trash
+clean: ## Clean __pycache__ trash
 clean:
 	sudo find . -type d -name "__pycache__" -exec rm -rf {} +
 
@@ -44,4 +46,8 @@ run:
 
 stop: ## Stop the service
 stop:
-	sudo systemctl stop kernel_auditor
+	sudo systemctl stop $(PROJECT_NAME)
+
+tests: ## Do tests
+tests:
+	sudo sh -c "PYTHONPATH=. pytest"

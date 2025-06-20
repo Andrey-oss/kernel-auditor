@@ -1,14 +1,41 @@
+'''Server starts here'''
+
 from flask import Flask, render_template, request, jsonify
+
+from core.settings import cfg_parser
+from checkhealth.check import init
+
 from modules.sysctl import parse_sysctl, set_sysctl_param
 from modules.hardware import get_hardware_info
 from modules.os_info import get_system_info
 from modules.process import get_processes
-from modules.network_settings import *
-from core.settings import cfg_parser
-from checkhealth.check import init
-from modules.network import *
-from modules.sched import *
-from modules.cpu import *
+from modules.network_settings import (
+    get_tcp_algorithms,
+    get_current_algo,
+    set_tcp_algo,
+    mac_changer,
+    get_network_ifaces,
+    parse_resolv,
+    set_dns,
+    get_socket_buffs,
+    set_socket_buffs)
+from modules.network import (
+    get_network_info,
+    get_speed_test,
+    get_ip_info
+)
+from modules.sched import (
+    get_schedulers,
+    get_sched_values,
+    set_sched,
+    set_tun
+)
+from modules.cpu import (
+    cpu_info,
+    general_cpu_info,
+    set_general_tuning,
+    set_params,
+)
 
 app = Flask(__name__)
 cfg = cfg_parser()
@@ -41,18 +68,18 @@ def network():
     network_info = get_network_info()
     speed_test = get_speed_test()
     ip_info = get_ip_info()
-    
-    return render_template('network.html', 
-                           network_info=network_info, 
+
+    return render_template('network.html',
+                           network_info=network_info,
                            speed_test=speed_test,
                            ip_info=ip_info
                            )
 
 @app.route('/hardware')
 def hardware_info():
-    hardware_info = get_hardware_info()
+    hw_info = get_hardware_info()
 
-    return render_template('hardware.html', hardware_info=hardware_info)
+    return render_template('hardware.html', hardware_info=hw_info)
 
 @app.route('/processes')
 def process_info():
@@ -88,7 +115,10 @@ def cpu_settings():
     general_cpu_data = general_cpu_info()
 
     if 'error' in general_cpu_data.values():
-        return jsonify({"status": general_cpu_data['status'], "message": general_cpu_data['message']}), 500
+        return jsonify(
+            status=general_cpu_data['status'],
+            message=general_cpu_data['message']
+        ), 500
 
     return render_template('cpu.html', cpu_settings=general_cpu_data)
 
@@ -121,7 +151,7 @@ def set_scheduler():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 @app.route('/api/set_sched_tunning', methods=['POST'])
@@ -130,7 +160,7 @@ def set_sched_tunning():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 # Sysctl Settings
@@ -141,7 +171,7 @@ def set_sysctl():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 # CPU Settings
@@ -153,7 +183,7 @@ def set_cpu_params():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 @app.route('/api/set_cpu_tuning', methods=['POST'])
@@ -163,7 +193,7 @@ def set_cpu_tuning():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 # Network Settings
@@ -175,7 +205,7 @@ def set_tcp_algorithm():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 @app.route('/api/update_resolv', methods=['POST'])
@@ -185,7 +215,7 @@ def update_resolv():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 @app.route('/api/change_mac', methods=['POST'])
@@ -195,7 +225,7 @@ def change_mac():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 @app.route('/api/set_socket_buffers', methods=['POST'])
@@ -205,7 +235,7 @@ def set_socket_buffers():
 
     if result['status'] != 'ok':
         return jsonify(result), 500
-    
+
     return jsonify(result)
 
 if __name__ == '__main__':
