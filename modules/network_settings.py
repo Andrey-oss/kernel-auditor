@@ -1,6 +1,7 @@
 '''Module for network settings'''
 
 import psutil
+from typing import Any
 from decorators.data_validators import validate_data_type, validate_data_length
 from modules.run import run_cmd_with_output, run_cmd
 from modules.sysctl import set_sysctl_param
@@ -32,6 +33,7 @@ def set_tcp_algo(algorithm: str) -> dict:
 
     if algorithm not in get_tcp_algorithms():
         return {'status': 'error', 'message': 'Enter valid algorithm'}
+
     result = run_cmd_with_output(f'sysctl net.ipv4.tcp_congestion_control={algorithm}')
 
     if 'No such file or directory' in result:
@@ -83,16 +85,11 @@ def parse_resolv() -> list:
     Parses resolv.conf (no argument required)
     """
 
-    data = []
     file = open('/etc/resolv.conf', 'r', encoding='utf-8')
 
-    for line in file:
-        #if 'nameserver' in line: # Because resolv.conf can have some options, so this condition should be removed
-        data.append(line.strip())
+    return [line.strip() for line in file]
 
-    return data
-
-def set_dns(data: dict) -> dict:
+def set_dns(data: Any) -> dict:
     """
     Changes DNS settings via resolv.conf. API Usage:
 
