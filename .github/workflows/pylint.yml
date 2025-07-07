@@ -21,9 +21,6 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        for f in $(git ls-files '*.py'); do
-          echo "Checking $f"
-          pylint "$f" || true
-        done
+        pylint .
 
 
