@@ -30,7 +30,7 @@ def set_sysctl_param(data: dict) -> dict:
     """
 
     try:
-        cmd = f'sysctl {data['name']}={data['value']}'
+        cmd = f"sysctl {data['name']}={data['value']}"
     except KeyError:
         return {'status': 'error', 'message': 'Sysctl param name or value not found in request!'}
 
