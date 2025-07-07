@@ -21,11 +21,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint with ignored 8 exit code
       run: |
-        pylint .
-        ret=$?
-        if [ $ret -eq 8 ]; then
-          echo "Pylint exit code 8 ignored"
-          exit 0
-        else
-          exit $ret
-        fi
+        pylint . --exit-zero
