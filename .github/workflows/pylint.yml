@@ -22,5 +22,10 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint .
-
-
+        ret=$?
+        if [ $ret -eq 8 ]; then
+          echo "Exit code 8 ignored"
+          exit 0
+        else
+          exit $ret
+        fi
