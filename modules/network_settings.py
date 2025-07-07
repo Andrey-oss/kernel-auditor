@@ -1,7 +1,7 @@
 '''Module for network settings'''
 
-import psutil
 from typing import Any
+import psutil
 from decorators.data_validators import validate_data_type, validate_data_length
 from modules.run import run_cmd_with_output, run_cmd
 from modules.sysctl import set_sysctl_param
@@ -39,7 +39,10 @@ def set_tcp_algo(algorithm: str) -> dict:
     if 'No such file or directory' in result:
         return {'status': 'error', 'message': result}
 
-    return {'status': 'ok', 'message': f'TCP Algorithm to {algorithm} was changed successfully'}
+    return {
+        'status': 'ok',
+        'message': f'TCP Algorithm to {algorithm} was changed successfully'
+    }
 
 @validate_data_type(dict)
 @validate_data_length(2, mode='exact')
@@ -57,7 +60,10 @@ def mac_changer(data: dict) -> dict:
         iface = data['iface']
         mac = data['mac']
     except KeyError:
-        return {'status': 'error', 'message': 'Got the wrong data'}
+        return {
+            'status': 'error',
+            'message': 'Got the wrong data'
+        }
 
     commands = [
         f'ip link set dev {iface} down',
@@ -70,7 +76,10 @@ def mac_changer(data: dict) -> dict:
         if res:
             return {'status': 'error', 'message': res}
 
-    return {'status': 'ok', 'message': 'MAC Address was changed successfully!'}
+    return {
+        'status': 'ok',
+        'message': 'MAC Address was changed successfully!'
+    }
 
 def get_network_ifaces() -> list:
     """
@@ -85,9 +94,8 @@ def parse_resolv() -> list:
     Parses resolv.conf (no argument required)
     """
 
-    file = open('/etc/resolv.conf', 'r', encoding='utf-8')
-
-    return [line.strip() for line in file]
+    with open('/etc/resolv.conf', 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file]
 
 def set_dns(data: Any) -> dict:
     """
@@ -101,15 +109,24 @@ def set_dns(data: Any) -> dict:
     """
 
     try:
-        file = open('/etc/resolv.conf', 'w', encoding='utf-8')
-        file.write(data)
-        file.close()
+        with open('/etc/resolv.conf', 'w', encoding='utf-8') as file:
+            file.write(data)
+            file.close()
     except PermissionError:
-        return {"status": "error", "message": "resolv.conf cannot be updated due to attributes/permissions"}
+        return {
+            "status": "error",
+            "message": "resolv.conf cannot be updated due to attributes/permissions"
+        }
     except IOError:
-        return {"status": "error", "message": "Input/Output error"}
+        return {
+            "status": "error",
+            "message": "Input/Output error"
+        }
 
-    return {"status": "ok", "message": "resolv.conf was updated successfully!"}
+    return {
+        "status": "ok",
+        "message": "resolv.conf was updated successfully!"
+    }
 
 def get_socket_buffs() -> dict:
     """
@@ -150,6 +167,12 @@ def set_socket_buffs(data: dict) -> dict:
         })
 
         if error['status'] == 'error':
-            return {"status": "error", "message": error['message']}
+            return {
+                "status": "error",
+                "message": error['message']
+            }
 
-    return {"status": "ok", "message": "Socket buffers changed successfully!"}
+    return {
+        "status": "ok",
+        "message": "Socket buffers changed successfully!"
+    }

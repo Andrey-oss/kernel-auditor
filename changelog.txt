@@ -38,3 +38,10 @@
 6. Added data validators as decorators
 7. Rewrited some part of comments
 8. Added bash script for changing processor's governor from console (you can install it in /bin if you wish)
+
+==v1.0.5-ref===
+1. Fixed some security bugs with CPU module
+2. Fixed bugs with the hardware module - network adapter output, CPU temperature
+3. Fixed pylint warnings and improved code style
+4. Added bash script for cleaning cached RAM (use if you have overflow)
+5. Fixed requirements (Added psutil)

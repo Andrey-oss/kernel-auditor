@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 '''Module for OS information'''
 
 import platform

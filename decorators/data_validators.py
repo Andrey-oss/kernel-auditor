@@ -36,13 +36,22 @@ def validate_data_length(expected_length: int, mode: str = 'exact'):
             actual_length = len(args[0])
 
             if mode == 'exact' and actual_length != expected_length:
-                return {'status': 'error', 'message': f'Expected length {expected_length}, got {actual_length}'}
+                return {
+                    'status': 'error',
+                    'message': f'Expected length {expected_length}, got {actual_length}'
+                }
 
             elif mode == 'max' and actual_length > expected_length:
-                return {'status': 'error', 'message': f'Max length {expected_length}, got {actual_length}'}
+                return {
+                    'status': 'error',
+                    'message': f'Max length {expected_length}, got {actual_length}'
+                }
 
             elif mode == 'min' and actual_length < expected_length:
-                return {'status': 'error', 'message': f'Min length {expected_length}, got {actual_length}'}
+                return {
+                    'status': 'error',
+                    'message': f'Min length {expected_length}, got {actual_length}'
+                }
 
             return func(*args, **kwargs)
         return wrapper

@@ -1,3 +1,4 @@
+# pylint: disable=missing-function-docstring
 '''Server starts here'''
 
 from flask import Flask, render_template, request, jsonify

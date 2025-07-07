@@ -7,7 +7,11 @@ DEVICE = 'sda'
 def test_valid_data():
     '''Test for valid data'''
 
-    saved_sched = [i for i in get_schedulers()[DEVICE] if '[' in i][0].replace('[', '').replace(']', '')
+    saved_sched = next(
+        (i.strip('[]') for i in get_schedulers()[DEVICE] if '[' in i),
+        None  # If element not found
+    )
+
 
     saved_data = {
         'device': DEVICE,

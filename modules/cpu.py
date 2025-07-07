@@ -2,6 +2,7 @@
 
 import os
 import re
+from pathlib import Path
 from decorators.data_validators import validate_data_type, validate_data_length
 from modules.run import run_cmd
 from modules.helpers import list_intersection, str_intersection, get_all_merged_params
@@ -35,16 +36,23 @@ def _get_cpus_list():
     return sorted(filter(regexp.search, os.listdir(OS_PATH)))
 
 def _parse_param(param: str, cpu: str) -> list:
-    f = open(f"{OS_PATH}/{cpu}/cpufreq/{param}", encoding='utf-8').read().split()
-
-    return f[0] if len(f) == 1 else f
-
-def _check_param_availabilty(param: str) -> bool:
-    file_path = f"{OS_PATH}/cpu1/cpufreq/{param}"
+    file_path = Path(OS_PATH) / cpu / "cpufreq" / param
 
     try:
-        value = open(file_path, encoding='utf-8').read().strip()
-    except Exception:
+        with open(file_path, encoding='utf-8') as f:
+            contents = f.read().split()
+
+        return contents[0] if len(contents) == 1 else contents
+    except (FileNotFoundError, PermissionError, OSError):
+        return None
+
+def _check_param_availabilty(param: str) -> bool:
+    file_path = Path(OS_PATH) / "cpu1" / "cpufreq" / param
+
+    try:
+        with open(file_path, encoding='utf-8') as f:
+            value = f.read().strip()
+    except (FileNotFoundError, PermissionError, OSError):
         return False
 
     cmd = f'echo "{value}" > {file_path}'
@@ -106,20 +114,23 @@ def general_cpu_info():
     result = cpu_info()
 
     name_dict_params_with_kv = {
-        'list_params': [k for k in AVAILABLE_DICT_PARAMS],
-        'str_params': [k for k in VALUE_DICT_PARAMS],
-        'int_params': [k for k in CHECK_DICT_PARAMS]
+        'list_params': list(AVAILABLE_DICT_PARAMS),
+        'str_params': list(VALUE_DICT_PARAMS),
+        'int_params': list(CHECK_DICT_PARAMS)
     }
 
     for k, v in name_dict_params_with_kv.items():
         for i in v:
             if k == 'list_params':
-                general_result[i] = [el for el in list_intersection(result, i)]
+                general_result[i] = list(list_intersection(result, i))
             else:
                 try:
-                    general_result[i] = [el for el in str_intersection(result, i)][0]
-                except Exception:
-                    return {"status": "error", "message": "CPU Governors/Features are not the same"}
+                    general_result[i] = list(str_intersection(result, i))[0]
+                except IndexError:
+                    return {
+                        "status": "error",
+                        "message": "CPU Governors/Features are not the same"
+                    }
 
     return general_result
 
@@ -139,13 +150,16 @@ def set_params(data: dict) -> dict:
     try:
         cpu = data['cpu']
     except KeyError:
-        return {'status': 'error', 'message': 'CPU number expected'}
+        return {
+            'status': 'error',
+            'message': 'CPU number expected'
+        }
 
     errors = {}
-    file_path = f'{OS_PATH}/{cpu}/cpufreq'
     for param, value in data.items():
+        file_path = Path(OS_PATH) / cpu / "cpufreq" / param
         if param != 'cpu':
-            cmd = f'echo {value} > {file_path}/{param}'
+            cmd = f'echo {value} > {file_path}'
 
             error = run_cmd(cmd)
 
@@ -153,9 +167,15 @@ def set_params(data: dict) -> dict:
                 errors[param] = error
 
     if not errors:
-        return {'status': 'ok', 'message': f'CPU parameters were changed successfully for CPU {cpu}!'}
+        return {
+            'status': 'ok',
+            'message': f'CPU parameters were changed successfully for CPU {cpu}!'
+        }
 
-    return {'status': 'error', 'message': str(errors)}
+    return {
+        'status': 'error',
+        'message': str(errors)
+    }
 
 @validate_data_type(dict)
 @validate_data_length(1, mode='min')
@@ -186,6 +206,12 @@ def set_general_tuning(data: dict) -> dict:
             errors[cpu] = error
 
     if not errors:
-        return {'status': 'ok', 'message': 'CPU settings were changed successfully!'}
+        return {
+            'status': 'ok',
+            'message': 'CPU settings were changed successfully!'
+        }
 
-    return {'status': 'error', 'message': str(errors)}
+    return {
+        'status': 'error',
+        'message': str(errors)
+    }

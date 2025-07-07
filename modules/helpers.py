@@ -92,7 +92,7 @@ def get_all_merged_params(param_list: list) -> list:
     }
     '''
 
-    result = dict()
+    result = {}
 
     for name in param_list:
         result.update(name)

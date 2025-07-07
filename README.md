@@ -15,7 +15,7 @@ This project is a Flask-based web application designed for system monitoring, op
 
 ## Installation
 ### Prerequisites
-- Python 3
+- Python 3.10 or higher
 - Flask
 - Required Python packages (listed in `requirements.txt`)
 

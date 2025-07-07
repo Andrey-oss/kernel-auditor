@@ -1,3 +1,6 @@
+# pylint: disable=subprocess-run-check
+# Disabled due to bug with sysctl
+
 '''Simple module for launching commands with subprocess'''
 
 import subprocess

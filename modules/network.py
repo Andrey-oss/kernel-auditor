@@ -1,5 +1,7 @@
+# pylint: disable=line-too-long
 '''Module for network information'''
 
+import sys
 import socket
 import psutil
 import requests
@@ -11,7 +13,7 @@ try:
     import speedtest
 except ImportError:
     if cfg['speed_test']:
-        exit("[FATAL] Speedtest doesn't installed, check your installation")
+        sys.exit("[FATAL] Speedtest doesn't installed, check your installation")
 
 def get_network_info() -> dict:
     """
@@ -48,14 +50,28 @@ def get_speed_test() -> dict:
         try:
             st = speedtest.Speedtest()
             st.get_best_server()
-        except Exception:
-            return {'download': False, 'upload': False, 'ping': False}
-        else:
-            download_speed = st.download() / 1_000_000  # MBps
-            upload_speed = st.upload() / 1_000_000  # MBps
-            ping = st.results.ping
-            return {'download': f'{round(download_speed, 2)} MBps', 'upload': f'{round(upload_speed, 2)} MBps', 'ping': f'{ping} ms'}
-    return {'download': False, 'upload': False, 'ping': False}
+        except speedtest.SpeedtestException:
+            return {
+                'download': False,
+                'upload': False,
+                'ping': False
+            }
+
+        download_speed = st.download() / 1_000_000  # MBps
+        upload_speed = st.upload() / 1_000_000  # MBps
+        ping = st.results.ping
+
+        return {
+            'download': f'{round(download_speed, 2)} MBps',
+            'upload': f'{round(upload_speed, 2)} MBps',
+            'ping': f'{ping} ms'
+        }
+
+    return {
+        'download': False,
+        'upload': False,
+        'ping': False
+    }
 
 def get_ip_info() -> dict:
     """
@@ -64,6 +80,8 @@ def get_ip_info() -> dict:
 
     try:
         r = requests.get("https://ifconfig.co/json", timeout=5).json()
-    except Exception:
+    except requests.exceptions.RequestException:
         return {"Internet": "disabled"}
-    return {k.capitalize().replace("_", " "): v for k, v in r.items() if k != 'user_agent'} # I attempted to retrieve and display the name and related information from a dictionary
+    return {
+        k.capitalize().replace("_", " "): v for k, v in r.items() if k != 'user_agent'
+    } # I attempted to retrieve and display the name and related information from a dictionary
