@@ -23,6 +23,7 @@ jobs:
       run: |
         for f in $(git ls-files '*.py'); do
           echo "Checking $f"
-          pylint "$f" || break
+          pylint "$f" || true
         done
+
 
