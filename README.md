@@ -13,6 +13,24 @@ This project is a Flask-based web application designed for system monitoring, op
 - **CPU Tuning**: Change governors, frequencies and features
 - **Network Settings**: Change and modify some network preferences easily
 
+## Some photos
+### Setting up I/O Scheduler  
+The scheduler selection interface for NVMe and SATA devices is shown below:
+
+[![Screenshot-20250707-150809.png](https://i.postimg.cc/Qxk4SBFn/Screenshot-20250707-150809.png)](https://postimg.cc/D80Pwwdq)
+
+### CPU Tuning  
+An example of setting the CPU frequency and choosing a governor:
+
+[![Screenshot-20250707-150014.png](https://i.postimg.cc/8zS46TwB/Screenshot-20250707-150014.png)](https://postimg.cc/N5dRhq35)
+
+### Hardware information
+You can view your hardware specifications directly in the service itself:
+
+[![Screenshot-20250707-151011.png](https://i.postimg.cc/rFFxXzhH/Screenshot-20250707-151011.png)](https://postimg.cc/7bdfSPr1)
+
+I have highlighted only some photos, you can check the full functionality yourself
+
 ## Installation
 ### Prerequisites
 - Python 3.10 or higher
