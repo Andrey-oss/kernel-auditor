@@ -131,6 +131,11 @@ The application uses a configuration file to manage settings. You can adjust set
 ## Documentation
 You can read our documentation, if you don't understand something
 
+## Notice / Important
+
+At the moment, `kernel-auditor` **has not been tested on Intel processors**
+If you are using an Intel CPU and encounter any issues or bugs, please open an issue on the repository or contact me directly
+
 ## Contributing
 Feel free to fork this repository and submit pull requests for improvements
 
