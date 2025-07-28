@@ -21,11 +21,13 @@ del_syswide:
 	sudo systemctl disable --now $(PROJECT_NAME).service
 	sudo rm -r $(INSTALL_PATH)$(PROJECT_NAME)
 	sudo rm -r $(SYSTEMD_SERVICE_PATH)$(PROJECT_NAME).service
+	sudo systemctl daemon-reload
 
 make_syswide: ## Make kernel_auditor as a system service
 make_syswide:
 	sudo cp -r $(PWD) $(INSTALL_PATH)
 	sudo cp -r others/$(PROJECT_NAME).service $(SYSTEMD_SERVICE_PATH)
+	sudo systemctl daemon-reload
 	sudo systemctl enable --now $(PROJECT_NAME).service
 
 remake_syswide: ## Redo kernel_auditor as a system service (useful for updating)
@@ -33,8 +35,8 @@ remake_syswide:
 	sudo systemctl stop $(PROJECT_NAME)
 	sudo cp -r $(PWD) $(INSTALL_PATH)
 	sudo cp -r others/$(PROJECT_NAME).service $(SYSTEMD_SERVICE_PATH)
-	sudo systemctl start $(PROJECT_NAME)
 	sudo systemctl daemon-reload
+	sudo systemctl start $(PROJECT_NAME)
 
 clean: ## Clean __pycache__ trash
 clean:
