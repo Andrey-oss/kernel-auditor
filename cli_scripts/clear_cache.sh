@@ -12,5 +12,5 @@ function clear_cache ()
   sudo echo 1 > /proc/sys/vm/drop_caches
 }
 
-clear_cache()
+clear_cache;
 exit 0
