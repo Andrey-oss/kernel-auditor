@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 User=root
-ExecStart=/bin/sh -c 'cd /usr/share/kernel-auditor && /usr/bin/env python3 main.py'
+ExecStart=/bin/sh -c 'cd /usr/share/kernel-auditor && source venv/bin/activate && /usr/bin/env python3 main.py'
 
 [Install]
 WantedBy=multi-user.target
