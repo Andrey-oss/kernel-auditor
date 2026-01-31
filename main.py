@@ -240,4 +240,4 @@ def set_socket_buffers():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(debug=cfg['debug'], port=cfg['port'])
+    app.run(debug=cfg['debug'], port=cfg['port'], host=cfg['host'])
