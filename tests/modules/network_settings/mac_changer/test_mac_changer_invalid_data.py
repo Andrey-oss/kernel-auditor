@@ -1,6 +1,6 @@
 '''Tests with valid data for mac_changer function
 
-There is not test with wrong MAC Specification due to unvailablity of internet
+There is no test with wrong MAC Specification due to unvailablity of internet
 Test causes unexpected behaviour of wifi adapter due to some linux rules
 Also some tests will be failed'''
 
@@ -16,7 +16,7 @@ def test_wrong_mac_address():
         'mac': mac
     }
 
-    assert mac_changer(data)['status'] != 'ok'
+    assert mac_changer(data)['status'] != 'success'
 
 def test_wrong_data():
     '''Test with wrong data'''
@@ -26,4 +26,4 @@ def test_wrong_data():
         'macaddress': '123'
     }
 
-    assert mac_changer(data)['status'] != 'ok'
+    assert mac_changer(data)['status'] != 'success'

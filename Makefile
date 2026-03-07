@@ -41,6 +41,7 @@ remake_syswide:
 clean: ## Clean __pycache__ trash
 clean:
 	sudo find . -type d -name "__pycache__" -exec rm -rf {} +
+	rm -f instance/tuning.db
 
 run: ## Run the server as default web-app
 run:

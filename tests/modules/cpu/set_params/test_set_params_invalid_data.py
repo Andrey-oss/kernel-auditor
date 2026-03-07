@@ -13,7 +13,7 @@ def test_invalid_cpu_num():
         'scaling_max_freq': '3000000'
     }
 
-    assert set_params(data)['status'] != 'ok'
+    assert set_params(data)['status'] != 'success'
 
 def test_invalid_governor():
     '''Test invalid cpu governor'''
@@ -23,7 +23,7 @@ def test_invalid_governor():
         'current_governor': 'schedutil'
     }
 
-    assert set_params(data)['status'] != 'ok'
+    assert set_params(data)['status'] != 'success'
 
 def test_data_without_cpu():
     '''Test data without cpu number'''
@@ -33,7 +33,7 @@ def test_data_without_cpu():
         'scaling_max_freq': '3000000'
     }
 
-    assert set_params(data)['status'] != 'ok'
+    assert set_params(data)['status'] != 'success'
 
 def test_wrong_param():
     '''Test function logic with unknown param'''
@@ -43,4 +43,4 @@ def test_wrong_param():
         'some_non-existent_param': 21
     }
 
-    assert set_params(data)['status'] != 'ok'
+    assert set_params(data)['status'] != 'success'

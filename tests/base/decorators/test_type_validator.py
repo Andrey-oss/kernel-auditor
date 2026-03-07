@@ -6,19 +6,19 @@ from decorators.data_validators import validate_data_type
 def dummy_func(data):
     '''Dummy function for testing'''
 
-    return {'status': 'ok', 'message': data}
+    return {'status': 'success', 'message': data}
 
 def test_with_valid_data_type():
     '''Test with valid data'''
 
-    assert dummy_func({'1': '2'})['status'] == 'ok'
+    assert dummy_func({'1': '2'})['status'] == 'success'
 
 def test_with_semi_valid_data_type():
     '''Test with set/dict type, must be OK'''
 
-    assert dummy_func({})['status'] == 'ok'
+    assert dummy_func({})['status'] == 'success'
 
 def test_with_invalid_data_type():
     '''Test with invalid data type'''
 
-    assert dummy_func('')['status'] != 'ok'
+    assert dummy_func('')['status'] != 'success'

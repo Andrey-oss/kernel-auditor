@@ -10,7 +10,7 @@ def test_invalid_param_with_valid_value():
         'value': '123'
     }
 
-    assert set_sysctl_param(data)['status'] != 'ok'
+    assert set_sysctl_param(data)['status'] != 'success'
 
 def test_valid_param_with_invalid_value():
     '''Test with invalid data value '''
@@ -32,7 +32,7 @@ def test_invalid_value_name():
         'valu': '6169a'
     }
 
-    assert set_sysctl_param(data)['status'] != 'ok'
+    assert set_sysctl_param(data)['status'] != 'success'
 
 def test_invalid_param_name():
     '''Test with invalid param key'''
@@ -42,4 +42,4 @@ def test_invalid_param_name():
         'value': '6169a'
     }
 
-    assert set_sysctl_param(data)['status'] != 'ok'
+    assert set_sysctl_param(data)['status'] != 'success'

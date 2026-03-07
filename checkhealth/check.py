@@ -7,7 +7,7 @@ If you wish to run it without root access, you won't be able to change anything!
 import sys
 from checkhealth.check_req import check_root, check_os
 
-def init():
+def init_hc():
     '''Init system checks'''
 
     if check_root():

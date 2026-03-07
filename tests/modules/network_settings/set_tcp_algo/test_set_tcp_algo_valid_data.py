@@ -10,6 +10,6 @@ def test_valid_data():
     saved_algo = get_current_algo()
 
     try:
-        assert set_tcp_algo(algo)['status'] == 'ok'
+        assert set_tcp_algo(algo)['status'] == 'success'
     finally:
-        assert set_tcp_algo(saved_algo)['status'] == 'ok'
+        assert set_tcp_algo(saved_algo)['status'] == 'success'

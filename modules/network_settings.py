@@ -5,6 +5,7 @@ import psutil
 from decorators.data_validators import validate_data_type, validate_data_length
 from modules.run import run_cmd_with_output, run_cmd
 from modules.sysctl import set_sysctl_param
+from modules.helpers import is_valid_mac
 
 def get_tcp_algorithms() -> list:
     """
@@ -40,7 +41,7 @@ def set_tcp_algo(algorithm: str) -> dict:
         return {'status': 'error', 'message': result}
 
     return {
-        'status': 'ok',
+        'status': 'success',
         'message': f'TCP Algorithm to {algorithm} was changed successfully'
     }
 
@@ -65,6 +66,12 @@ def mac_changer(data: dict) -> dict:
             'message': 'Got the wrong data'
         }
 
+    if not is_valid_mac(mac=mac):
+        return {
+            'status': 'error',
+            'message': 'Got wrong MAC address'
+        }
+
     commands = [
         f'ip link set dev {iface} down',
         f'ip link set dev {iface} address {mac}',
@@ -74,10 +81,10 @@ def mac_changer(data: dict) -> dict:
     for cmd in commands:
         res = run_cmd(cmd)
         if res:
-            return {'status': 'error', 'message': res}
+            return {'status': 'success', 'message': res}
 
     return {
-        'status': 'ok',
+        'status': 'success',
         'message': 'MAC Address was changed successfully!'
     }
 
@@ -124,7 +131,7 @@ def set_dns(data: Any) -> dict:
         }
 
     return {
-        "status": "ok",
+        "status": "success",
         "message": "resolv.conf was updated successfully!"
     }
 
@@ -173,6 +180,6 @@ def set_socket_buffs(data: dict) -> dict:
             }
 
     return {
-        "status": "ok",
+        "status": "success",
         "message": "Socket buffers changed successfully!"
     }

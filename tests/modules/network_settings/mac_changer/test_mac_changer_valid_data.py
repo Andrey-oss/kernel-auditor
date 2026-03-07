@@ -12,4 +12,4 @@ def test_valid_data():
         'mac': 'AA:00:11:22:33:44'
     }
 
-    assert mac_changer(data)['status'] == 'ok' # MAC Cannot be restored due to wifi turn offing
+    assert mac_changer(data)['status'] == 'success' # MAC Cannot be restored due to wifi turn offing

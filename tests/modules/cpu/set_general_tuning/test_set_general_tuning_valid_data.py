@@ -17,9 +17,9 @@ def test_with_valid_data():
     }
 
     try:
-        assert set_general_tuning(data)['status'] == 'ok'
+        assert set_general_tuning(data)['status'] == 'success'
     finally:
-        assert set_general_tuning(saved_data)['status'] == 'ok'
+        assert set_general_tuning(saved_data)['status'] == 'success'
 
     assert GEN_CPU_INFO['current_governor'] == saved_data[TEST_PARAM]
 
@@ -39,7 +39,7 @@ def test_with_cpu_number():
     }
 
     try:
-        assert set_general_tuning(data)['status'] == 'ok'
+        assert set_general_tuning(data)['status'] == 'success'
         assert 'error' not in GEN_CPU_INFO
     finally:
-        assert set_general_tuning(saved_data)['status'] == 'ok'
+        assert set_general_tuning(saved_data)['status'] == 'success'

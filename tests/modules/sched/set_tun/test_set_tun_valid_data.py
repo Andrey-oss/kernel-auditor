@@ -18,6 +18,6 @@ def test_with_valid_data():
     }
 
     try:
-        assert set_tun(data)['status'] == 'ok'
+        assert set_tun(data)['status'] == 'success'
     finally:
-        assert set_tun(saved_data)['status'] == 'ok'
+        assert set_tun(saved_data)['status'] == 'success'

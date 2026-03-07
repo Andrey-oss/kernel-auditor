@@ -88,7 +88,7 @@ def set_sched(data: dict) -> dict:
 
     if not error:
         return {
-            'status': 'ok',
+            'status': 'success',
             'message': 'Scheduler has been changed successfully!'
         }
 
@@ -134,7 +134,7 @@ def set_tun(data: dict) -> dict:
 
     if not errors:
         return {
-            'status': 'ok',
+            'status': 'success',
             'message': 'New tunning applied with no errors!'
         }
 

@@ -45,3 +45,12 @@
 3. Fixed pylint warnings and improved code style
 4. Added bash script for cleaning cached RAM (use if you have overflow)
 5. Fixed requirements (Added psutil)
+
+==v1.0.6===
+1. Added Sqlite3 database and some entities
+2. Added History button with filters/pagination (For logs)
+3. Rewrited API for better performance and logging
+4. Added auto-refresh support in System Info menu
+5. Some internal API fixes for History
+6. Improved pages design
+7. Fixed MAC address test

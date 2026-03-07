@@ -3,103 +3,251 @@
 {% block title %}System Information{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1 class="text-center my-5 text-info">System Information</h1>
-        <div class="row">
-            <!-- Sysctem info -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-lg border-info">
-                    <div class="card-body">
-                        <h5 class="card-title text-info">Operating System</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>System:</strong> {{ system_info['system'] }}</li>
-                            <li><strong>Node Name:</strong> {{ system_info['node_name'] }}</li>
-                            <li><strong>Release:</strong> {{ system_info['release'] }}</li>
-                            <li><strong>Version:</strong> {{ system_info['version'] }}</li>
-                            <li><strong>Architecture:</strong> {{ system_info['architecture'] }}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System resources -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-lg border-warning">
-                    <div class="card-body">
-                        <h5 class="card-title text-warning">System Resources</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>CPU Cores:</strong> {{ system_info['cpu_count'] }}</li>
-                            <li><strong>CPU Frequency:</strong> {{ system_info['cpu_freq'] }} MHz</li>
-                            <li><strong>Total Memory:</strong> {{ system_info['total_memory'] }} GB</li>
-                            <li><strong>Used Memory:</strong> {{ system_info['used_memory'] }} GB</li>
-                            <li><strong>Disk Space:</strong> {{ system_info['disk_space'] }} GB</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System uptime -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-lg border-success">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">System Uptime</h5>
-                        <p><strong>Uptime:</strong> {{ system_info['uptime'] }}</p>
-                        <p><strong>Boot Time:</strong> {{ system_info['boot_time'] }}</p>
-                    </div>
+<div class="container">
+    <h1 class="text-center my-5 text-info">
+        System Information
+        <span class="small text-muted ms-3" id="lastUpdate"></span>
+    </h1>
+    
+    <div class="row">
+        <!-- Operating System -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-info">
+                <div class="card-body">
+                    <h5 class="card-title text-info">Operating System</h5>
+                    <ul class="list-unstyled" id="os-info">
+                        <li><strong>System:</strong> <span id="system-name">{{ system_info['system'] }}</span></li>
+                        <li><strong>Node Name:</strong> <span id="node-name">{{ system_info['node_name'] }}</span></li>
+                        <li><strong>Release:</strong> <span id="release">{{ system_info['release'] }}</span></li>
+                        <li><strong>Version:</strong> <span id="version">{{ system_info['version'] }}</span></li>
+                        <li><strong>Architecture:</strong> <span id="architecture">{{ system_info['architecture'] }}</span></li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Cpu usage -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-danger">
-                    <div class="card-body">
-                        <h5 class="card-title text-danger">CPU Usage</h5>
-                        <div class="progress">
-                            <div class="progress-bar bg-danger" role="progressbar" 
-                                style="width: {{ system_info['cpu_percent'] }}%" 
-                                aria-valuenow="{{ system_info['cpu_percent'] }}" aria-valuemin="0" aria-valuemax="100">
-                                {{ system_info['cpu_percent'] }}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ram usage -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Memory Usage</h5>
-                        <div class="progress">
-                            <div class="progress-bar bg-primary" role="progressbar" 
-                                style="width: {{ (system_info['used_memory'] / system_info['total_memory']) * 100 }}%" 
-                                aria-valuenow="{{ (system_info['used_memory'] / system_info['total_memory']) * 100 }}" 
-                                aria-valuemin="0" aria-valuemax="100">
-                                {{ ((system_info['used_memory'] / system_info['total_memory'])*100)|round(2) }}%
-                            </div>
-                        </div>
-                    </div>
+        <!-- System Resources -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-warning">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">System Resources</h5>
+                    <ul class="list-unstyled" id="resources-info">
+                        <li><strong>CPU Cores:</strong> <span id="cpu-count">{{ system_info['cpu_count'] }}</span></li>
+                        <li><strong>CPU Frequency:</strong> <span id="cpu-freq">{{ system_info['cpu_freq'] }}</span> MHz</li>
+                        <li><strong>Total Memory:</strong> <span id="total-memory">{{ system_info['total_memory'] }}</span> GB</li>
+                        <li><strong>Used Memory:</strong> <span id="used-memory">{{ system_info['used_memory'] }}</span> GB</li>
+                        <li><strong>Disk Space:</strong> <span id="disk-space">{{ system_info['disk_space'] }}</span> GB</li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- System load -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card shadow-lg border-secondary">
-                    <div class="card-body">
-                        <h5 class="card-title text-secondary">System Load</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Load (1 min):</strong> {{ system_info['load_avg'][0] }}</li>
-                            <li><strong>Load (5 min):</strong> {{ system_info['load_avg'][1] }}</li>
-                            <li><strong>Load (15 min):</strong> {{ system_info['load_avg'][2] }}</li>
-                        </ul>
-                    </div>
+        <!-- System Uptime -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-success">
+                <div class="card-body">
+                    <h5 class="card-title text-success">System Uptime</h5>
+                    <ul class="list-unstyled" id="uptime-info">
+                        <li><strong>Uptime:</strong> <span id="uptime">{{ system_info['uptime'] }}</span></li>
+                        <li><strong>Boot Time:</strong> <span id="boot-time">{{ system_info['boot_time'] }}</span></li>
+                    </ul>
                 </div>
             </div>
         </div>
-
     </div>
+
+    <!-- CPU Usage -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg border-danger">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">CPU Usage</h5>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-danger" role="progressbar" 
+                            id="cpu-progress"
+                            style="width: {{ system_info['cpu_percent'] }}%" 
+                            aria-valuenow="{{ system_info['cpu_percent'] }}" 
+                            aria-valuemin="0" aria-valuemax="100">
+                            <span id="cpu-percent">{{ system_info['cpu_percent'] }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Memory Usage -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-lg border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Memory Usage</h5>
+                    {% set memory_percent = (system_info['used_memory'] / system_info['total_memory']) * 100 %}
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                            id="memory-progress"
+                            style="width: {{ memory_percent }}%" 
+                            aria-valuenow="{{ memory_percent }}" 
+                            aria-valuemin="0" aria-valuemax="100">
+                            <span id="memory-percent">{{ memory_percent|round(2) }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Load -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg border-secondary">
+                <div class="card-body">
+                    <h5 class="card-title text-secondary">System Load Average</h5>
+                    <ul class="list-unstyled" id="load-info">
+                        <li><strong>Load (1 min):</strong> <span id="load-1">{{ system_info['load_avg'][0] }}</span></li>
+                        <li><strong>Load (5 min):</strong> <span id="load-5">{{ system_info['load_avg'][1] }}</span></li>
+                        <li><strong>Load (15 min):</strong> <span id="load-15">{{ system_info['load_avg'][2] }}</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let refreshInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadSystemData();
+    startAutoRefresh();
+});
+
+function loadSystemData() {
+    fetch('/api/system')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error:', data.error);
+                return;
+            }
+            
+            updateSystemInfo(data);
+            updateResourcesInfo(data);
+            updateUptimeInfo(data);
+            updateCPUUsage(data);
+            updateMemoryUsage(data);
+            updateLoadInfo(data);
+            updateLastUpdateTime();
+        })
+        .catch(error => {
+            console.error('Error loading system data:', error);
+        });
+}
+
+function updateSystemInfo(data) {
+    document.getElementById('system-name').textContent = data.system || 'N/A';
+    document.getElementById('node-name').textContent = data.node_name || 'N/A';
+    document.getElementById('release').textContent = data.release || 'N/A';
+    document.getElementById('version').textContent = data.version || 'N/A';
+    document.getElementById('architecture').textContent = data.architecture || 'N/A';
+}
+
+function updateResourcesInfo(data) {
+    document.getElementById('cpu-count').textContent = data.cpu_count || 'N/A';
+    document.getElementById('cpu-freq').textContent = data.cpu_freq || 'N/A';
+    document.getElementById('total-memory').textContent = data.total_memory || 'N/A';
+    document.getElementById('used-memory').textContent = data.used_memory || 'N/A';
+    document.getElementById('disk-space').textContent = data.disk_space || 'N/A';
+}
+
+function updateUptimeInfo(data) {
+    document.getElementById('uptime').textContent = data.uptime || 'N/A';
+    document.getElementById('boot-time').textContent = data.boot_time || 'N/A';
+}
+
+function updateCPUUsage(data) {
+    const cpuPercent = parseFloat(data.cpu_percent) || 0;
+    const cpuProgress = document.getElementById('cpu-progress');
+    const cpuSpan = document.getElementById('cpu-percent');
+    
+    cpuProgress.style.width = cpuPercent + '%';
+    cpuProgress.setAttribute('aria-valuenow', cpuPercent);
+    cpuSpan.textContent = cpuPercent.toFixed(1);
+    
+    // Change color based on usage
+    if (cpuPercent > 80) {
+        cpuProgress.className = 'progress-bar bg-danger';
+    } else if (cpuPercent > 60) {
+        cpuProgress.className = 'progress-bar bg-warning';
+    } else {
+        cpuProgress.className = 'progress-bar bg-info';
+    }
+}
+
+function updateMemoryUsage(data) {
+    const usedMemory = parseFloat(data.used_memory) || 0;
+    const totalMemory = parseFloat(data.total_memory) || 1; // avoid division by zero
+    const memoryPercent = (usedMemory / totalMemory) * 100;
+    
+    const memoryProgress = document.getElementById('memory-progress');
+    const memorySpan = document.getElementById('memory-percent');
+    
+    memoryProgress.style.width = memoryPercent + '%';
+    memoryProgress.setAttribute('aria-valuenow', memoryPercent);
+    memorySpan.textContent = memoryPercent.toFixed(1);
+    
+    // Change color based on usage
+    if (memoryPercent > 90) {
+        memoryProgress.className = 'progress-bar bg-danger';
+    } else if (memoryPercent > 75) {
+        memoryProgress.className = 'progress-bar bg-warning';
+    } else {
+        memoryProgress.className = 'progress-bar bg-success';
+    }
+}
+
+function updateLoadInfo(data) {
+    if (data.load_avg && Array.isArray(data.load_avg)) {
+        document.getElementById('load-1').textContent = data.load_avg[0] || 'N/A';
+        document.getElementById('load-5').textContent = data.load_avg[1] || 'N/A';
+        document.getElementById('load-15').textContent = data.load_avg[2] || 'N/A';
+    }
+}
+
+// ========== AUTO-REFRESH ==========
+function startAutoRefresh() {
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(() => {
+        loadSystemData();
+    }, 3000);
+}
+
+function stopAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+}
+
+function updateLastUpdateTime() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString();
+    document.getElementById('lastUpdate').textContent = `🕐 Last update: ${timeStr}`;
+}
+
+document.addEventListener('mouseover', function(e) {
+    if (e.target.closest('.progress')) {
+        stopAutoRefresh();
+    }
+});
+
+document.addEventListener('mouseout', function(e) {
+    if (e.target.closest('.progress')) {
+        startAutoRefresh();
+    }
+});
+
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
+</script>
+
 {% endblock %}

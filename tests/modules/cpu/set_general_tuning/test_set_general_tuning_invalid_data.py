@@ -9,7 +9,7 @@ def test_invalid_governor():
         'current_governor': 'gov123test_x1',
     }
 
-    assert set_general_tuning(data)['status'] != 'ok'
+    assert set_general_tuning(data)['status'] != 'success'
 
 def test_wrong_check_dict_params():
     '''
@@ -21,7 +21,7 @@ def test_wrong_check_dict_params():
         'cpb': 'test'
     }
 
-    assert set_general_tuning(data)['status'] != 'ok'
+    assert set_general_tuning(data)['status'] != 'success'
 
 def test_with_only_cpu_number_in_data():
     '''Test if only cpu number will be in data'''
@@ -30,4 +30,4 @@ def test_with_only_cpu_number_in_data():
         'cpu': 'cpu0'
     }
 
-    assert set_general_tuning(data)['status'] != 'ok'
+    assert set_general_tuning(data)['status'] != 'success'

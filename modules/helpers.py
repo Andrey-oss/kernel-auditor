@@ -1,5 +1,7 @@
 '''This module contains some function, which can help to fix/solve some problems'''
 
+import re
+
 def list_intersection(data: dict, param: str) -> set:
     '''Finds intersection of all list params in data dict. For example:
     
@@ -98,3 +100,9 @@ def get_all_merged_params(param_list: list) -> list:
         result.update(name)
 
     return result
+
+def is_valid_mac(mac):
+    '''Validate mac address'''
+
+    pattern = r'^([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})$'
+    return bool(re.match(pattern, mac))

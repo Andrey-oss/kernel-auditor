@@ -46,6 +46,6 @@ def set_sysctl_param(data: dict) -> dict:
         }
 
     return {
-        'status': 'ok',
+        'status': 'success',
         'message': f"Parameter {data['name']} was changed successfully!"
     }

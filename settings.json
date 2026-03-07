@@ -2,5 +2,6 @@
     "checkhealth": true,
     "port": 5000,
     "speed_test": false,
-    "debug": false
+    "debug": false,
+    "database_uri": "sqlite:///tuning.db"
 }

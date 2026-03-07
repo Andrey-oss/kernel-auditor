@@ -6,3 +6,4 @@ GPUtil == 1.4.0
 getmac == 0.9.5
 pytest == 8.3.5
 psutil == 7.0.0
+flask-sqlalchemy == 3.0.5

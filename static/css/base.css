@@ -16,6 +16,11 @@ body {
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     background-color: white;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
 }
 
 footer {
@@ -52,4 +57,59 @@ ul.list-unstyled li {
 
 ul.list-unstyled li strong {
     color: #007bff;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.received-cell, .sent-cell {
+    transition: background-color 0.5s;
+    font-family: monospace;
+}
+
+#lastUpdate {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.spinner-border {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 5px;
+}
+
+.progress {
+    transition: height 0.3s;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out, background-color 0.3s;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+#lastUpdate {
+    font-size: 0.9rem;
+    font-weight: normal;
+}
+
+.list-unstyled li {
+    margin-bottom: 8px;
+}
+
+.list-unstyled li strong {
+    min-width: 120px;
+    display: inline-block;
 }

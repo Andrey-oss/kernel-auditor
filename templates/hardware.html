@@ -3,108 +3,399 @@
 {% block title %}Hardware Information{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1 class="text-center my-5">Hardware Information</h1>
-
-        <div class="row">
-            <!-- CPU Information -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Processor</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Frequency:</strong> {{ hardware_info['cpu_model']|round(2) }} MHz</li>
-                            <li><strong>Cores:</strong> {{ hardware_info['cpu_cores'] }}</li>
-                            <li><strong>Threads:</strong> {{ hardware_info['cpu_threads'] }}</li>
-                            <li><strong>Base Frequency:</strong> {{ hardware_info['cpu_freq'] }} MHz</li>
-                            <li><strong>Current Load:</strong> {{ hardware_info['cpu_load'] }}%</li>
-                            <li><strong>Temperature:</strong> {{ hardware_info['cpu_temp'] }}°C</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Memory Information -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-success">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">Memory</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Total Memory:</strong> {{ hardware_info['ram_total'] }} GB</li>
-                            <li><strong>Used Memory:</strong> {{ hardware_info['ram_used'] }} GB</li>
-                            <li><strong>Available Memory:</strong> {{ hardware_info['ram_available'] }} GB</li>
-                            <li><strong>Free Memory:</strong> {{ hardware_info['ram_free'] }} GB</li>
-                            <li><strong>Cached Memory:</strong> {{ hardware_info['ram_cached'] }} GB</li>
-                        </ul>
+<div class="container">
+    <h1 class="text-center my-4">
+        Hardware Information
+        <span class="small text-muted ms-3" id="lastUpdate"></span>
+    </h1>
+    
+    <!-- System Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">System Overview</h5>
+                    <div class="row" id="system-overview">
+                        <!-- Will be filled by JavaScript -->
+                        <div class="col-12 text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading system information...
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Disk, GPU, and Network Information -->
-        <div class="row">
-            <!-- Disk Information -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-warning">
-                    <div class="card-body">
-                        <h5 class="card-title text-warning">Disk Storage</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Total Disk Space:</strong> {{ hardware_info['disk_total'] }} GB</li>
-                            <li><strong>Used Disk Space:</strong> {{ hardware_info['disk_used'] }} GB</li>
-                            <li><strong>Free Disk Space:</strong> {{ hardware_info['disk_free'] }} GB</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GPU Information -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-danger">
-                    <div class="card-body">
-                        <h5 class="card-title text-danger">Graphics Card</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>GPU Model:</strong> {{ hardware_info['gpu_model'] }}</li>
-                            <li><strong>GPU Driver:</strong> {{ hardware_info['gpu_driver'] }}</li>
-                            <li><strong>GPU Memory:</strong> {{ hardware_info['gpu_memory'] }} GB</li>
-                            <li><strong>GPU Load:</strong> {{ hardware_info['gpu_load'] }}</li>
-                            <li><strong>GPU Temperature:</strong> {{ hardware_info['gpu_temp'] }}°C</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Additional System Info -->
-        <div class="row">
-            <!-- Network Adapter -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-info">
-                    <div class="card-body">
-                        <h5 class="card-title text-info">Network Adapter</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Adapter:</strong> {{ hardware_info['net_adapter'] }}</li>
-                            <li><strong>Speed:</strong> {{ hardware_info['net_speed'] }} Mbps</li>
-                            <li><strong>IP Address:</strong> {{ hardware_info['ip_address'] }}</li>
-                            <li><strong>MAC Address:</strong> {{ hardware_info['mac'] }}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Status -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-dark">
-                    <div class="card-body">
-                        <h5 class="card-title text-dark">System Status</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Active Processes:</strong> {{ hardware_info['active_processes'] }}</li>
-                            <li><strong>System Time:</strong> {{ hardware_info['system_time'] }}</li>
-                            <li><strong>Uptime:</strong> {{ hardware_info['uptime'] }}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+    
+    <div class="row">
+        <!-- CPU Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-primary">⚡</span> Processor
+                    </h5>
+                    <div id="cpu-info">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading CPU information...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Memory Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-success">📊</span> Memory
+                    </h5>
+                    <div id="memory-info">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading memory information...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Disk Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-warning">💾</span> Disk Storage
+                    </h5>
+                    <div id="disk-info">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading disk information...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GPU Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-danger">🎮</span> Graphics Card
+                    </h5>
+                    <div id="gpu-info">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading GPU information...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Network Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-info">🌐</span> Network
+                    </h5>
+                    <div id="network-info">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading network information...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-secondary">📈</span> Quick Stats
+                    </h5>
+                    <div id="quick-stats">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading statistics...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let refreshInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadHardwareData();
+    startAutoRefresh();
+});
+
+function loadHardwareData() {
+    fetch('/api/hardware')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+            
+            updateSystemOverview(data);
+            updateCPUInfo(data);
+            updateMemoryInfo(data);
+            updateDiskInfo(data);
+            updateGPUInfo(data);
+            updateNetworkInfo(data);
+            updateQuickStats(data);
+            updateLastUpdateTime();
+        })
+        .catch(error => {
+            console.error('Error loading hardware data:', error);
+            showError('Failed to load hardware information');
+        });
+}
+
+function updateSystemOverview(data) {
+    const html = `
+        <div class="col-md-4">
+            <ul class="list-unstyled">
+                <li><strong>Hostname:</strong> ${data.hostname || 'N/A'}</li>
+                <li><strong>OS:</strong> ${data.os || 'N/A'} ${data.os_release || ''}</li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <ul class="list-unstyled">
+                <li><strong>System Time:</strong> ${data.system_time || 'N/A'}</li>
+                <li><strong>Uptime:</strong> ${data.uptime || 'N/A'}</li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <ul class="list-unstyled">
+                <li><strong>Boot Time:</strong> ${data.boot_time || 'N/A'}</li>
+                <li><strong>Active Processes:</strong> ${data.active_processes || 'N/A'}</li>
+            </ul>
+        </div>
+    `;
+    document.getElementById('system-overview').innerHTML = html;
+}
+
+function updateCPUInfo(data) {
+    const tempClass = data.cpu_temp > 80 ? 'text-danger' : (data.cpu_temp > 60 ? 'text-warning' : '');
+    
+    const html = `
+        <ul class="list-unstyled">
+            <li><strong>Model:</strong> ${data.cpu_model || 'N/A'}</li>
+            <li><strong>Cores:</strong> ${data.cpu_cores || 'N/A'} 
+                ${data.cpu_threads != data.cpu_cores ? `(${data.cpu_threads} threads)` : ''}
+            </li>
+            <li><strong>Frequency:</strong> 
+                ${data.cpu_freq_current != 'N/A' ? data.cpu_freq_current + ' MHz' : 'N/A'}
+                ${data.cpu_freq_max != 'N/A' ? ` (Max: ${data.cpu_freq_max} MHz)` : ''}
+            </li>
+            <li class="mt-2"><strong>Current Load:</strong>
+                <div class="progress mt-1" style="height: 25px;">
+                    <div class="progress-bar bg-primary" role="progressbar" 
+                         style="width: ${data.cpu_load}%"
+                         aria-valuenow="${data.cpu_load}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        ${data.cpu_load}%
+                    </div>
+                </div>
+            </li>
+            ${data.cpu_temp != 'N/A' ? `
+                <li class="mt-2"><strong>Temperature:</strong> 
+                    <span class="${tempClass}">${data.cpu_temp}°C</span>
+                </li>
+            ` : ''}
+        </ul>
+    `;
+    document.getElementById('cpu-info').innerHTML = html;
+}
+
+function updateMemoryInfo(data) {
+    const ramPercent = parseFloat(data.ram_percent) || 0;
+    const barClass = ramPercent > 90 ? 'bg-danger' : (ramPercent > 75 ? 'bg-warning' : 'bg-success');
+    
+    const html = `
+        <ul class="list-unstyled">
+            <li><strong>Total:</strong> ${data.ram_total || 0} GB</li>
+            <li><strong>Used:</strong> ${data.ram_used || 0} GB</li>
+            <li><strong>Available:</strong> ${data.ram_available || 0} GB</li>
+            <li class="mt-2"><strong>Usage:</strong>
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar ${barClass}" role="progressbar"
+                         style="width: ${ramPercent}%"
+                         aria-valuenow="${ramPercent}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                         ${ramPercent.toFixed(1)}%
+                    </div>
+                </div>
+            </li>
+        </ul>
+    `;
+    document.getElementById('memory-info').innerHTML = html;
+}
+
+function updateDiskInfo(data) {
+    const diskPercent = parseFloat(data.disk_percent) || 0;
+    const barClass = diskPercent > 90 ? 'bg-danger' : (diskPercent > 80 ? 'bg-warning' : 'bg-info');
+    
+    const html = `
+        <ul class="list-unstyled">
+            <li><strong>Total:</strong> ${data.disk_total || 0} GB</li>
+            <li><strong>Used:</strong> ${data.disk_used || 0} GB</li>
+            <li><strong>Free:</strong> ${data.disk_free || 0} GB</li>
+            <li class="mt-2"><strong>Usage:</strong>
+                <div class="progress mt-1" style="height: 25px;">
+                    <div class="progress-bar ${barClass}" role="progressbar" 
+                         style="width: ${diskPercent}%"
+                         aria-valuenow="${diskPercent}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        ${diskPercent.toFixed(1)}%
+                    </div>
+                </div>
+            </li>
+        </ul>
+    `;
+    document.getElementById('disk-info').innerHTML = html;
+}
+
+function updateGPUInfo(data) {
+    if (data.gpu_model && data.gpu_model !== 'Not detected' && data.gpu_model !== 'N/A') {
+        const html = `
+            <ul class="list-unstyled">
+                <li><strong>Model:</strong> ${data.gpu_model}</li>
+                <li><strong>Driver:</strong> ${data.gpu_driver || 'N/A'}</li>
+                <li><strong>Memory:</strong> ${data.gpu_memory_total || 'N/A'} MB 
+                    (Used: ${data.gpu_memory_used || 'N/A'} MB)
+                </li>
+                <li><strong>Load:</strong> ${data.gpu_load || 'N/A'}%</li>
+                ${data.gpu_temp != 'N/A' ? `<li><strong>Temperature:</strong> ${data.gpu_temp}°C</li>` : ''}
+            </ul>
+        `;
+        document.getElementById('gpu-info').innerHTML = html;
+    } else {
+        document.getElementById('gpu-info').innerHTML = `
+            <p class="text-muted text-center py-3">
+                <small>No GPU detected or information not available</small>
+            </p>
+        `;
+    }
+}
+
+function updateNetworkInfo(data) {
+    const html = `
+        <ul class="list-unstyled">
+            <li><strong>Adapter:</strong> ${data.net_adapter || 'N/A'}</li>
+            <li><strong>Speed:</strong> ${data.net_speed || 'N/A'} Mbps</li>
+            <li><strong>IP Address:</strong> ${data.ip_address || 'N/A'}</li>
+            <li><strong>MAC Address:</strong> ${data.mac || 'N/A'}</li>
+        </ul>
+    `;
+    document.getElementById('network-info').innerHTML = html;
+}
+
+function updateQuickStats(data) {
+    const cpuLoad = parseFloat(data.cpu_load) || 0;
+    const ramPercent = parseFloat(data.ram_percent) || 0;
+    const diskPercent = parseFloat(data.disk_percent) || 0;
+    
+    const html = `
+        <div class="row text-center">
+            <div class="col-4">
+                <h3 class="${cpuLoad > 80 ? 'text-danger' : ''}">
+                    ${cpuLoad.toFixed(1)}%
+                </h3>
+                <small class="text-muted">CPU</small>
+            </div>
+            <div class="col-4">
+                <h3 class="${ramPercent > 90 ? 'text-danger' : ''}">
+                    ${ramPercent.toFixed(1)}%
+                </h3>
+                <small class="text-muted">RAM</small>
+            </div>
+            <div class="col-4">
+                <h3 class="${diskPercent > 90 ? 'text-danger' : ''}">
+                    ${diskPercent.toFixed(1)}%
+                </h3>
+                <small class="text-muted">Disk</small>
+            </div>
+        </div>
+    `;
+    document.getElementById('quick-stats').innerHTML = html;
+}
+
+// ========== AUTO-REFRESH ==========
+function startAutoRefresh() {
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(() => {
+        loadHardwareData();
+    }, 3000);
+}
+
+function stopAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+}
+
+function updateLastUpdateTime() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString();
+    document.getElementById('lastUpdate').textContent = `🕐 Last update: ${timeStr}`;
+}
+
+function showError(message) {
+    const toast = document.createElement('div');
+    toast.className = 'position-fixed bottom-0 end-0 p-3';
+    toast.style.zIndex = '5';
+    toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-danger text-white">
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" onclick="this.closest('.toast').remove()"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+    }, 5000);
+}
+
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
+</script>
+
 {% endblock %}

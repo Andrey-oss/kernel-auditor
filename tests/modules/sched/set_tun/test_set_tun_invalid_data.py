@@ -11,7 +11,7 @@ def test_invalid_device():
         'read_ahead_kb': '128'
     }
 
-    assert set_tun(data)['status'] != 'ok'
+    assert set_tun(data)['status'] != 'success'
 
 def test_no_device_specified():
     '''Test for no device specified'''
@@ -21,4 +21,4 @@ def test_no_device_specified():
         'read_ahead_kb': '128'
     }
 
-    assert set_tun(data)['status'] != 'ok'
+    assert set_tun(data)['status'] != 'success'

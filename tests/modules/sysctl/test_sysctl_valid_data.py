@@ -18,9 +18,9 @@ def test_valid_data():
     } # Rarely used param
 
     try:
-        assert set_sysctl_param(data)['status'] == 'ok'
+        assert set_sysctl_param(data)['status'] == 'success'
     finally:
-        assert set_sysctl_param(saved_data)['status'] == 'ok'
+        assert set_sysctl_param(saved_data)['status'] == 'success'
 
 def test_valid_data_response():
     """Test response data with valid params"""

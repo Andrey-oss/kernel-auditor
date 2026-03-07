@@ -168,7 +168,7 @@ def set_params(data: dict) -> dict:
 
     if not errors:
         return {
-            'status': 'ok',
+            'status': 'success',
             'message': f'CPU parameters were changed successfully for CPU {cpu}!'
         }
 
@@ -202,12 +202,12 @@ def set_general_tuning(data: dict) -> dict:
                 arg[get_all_merged_params(PARAMS_VARS)[param]] = value
 
         error = set_params(arg)
-        if error['status'] != 'ok':
+        if error['status'] != 'success':
             errors[cpu] = error
 
     if not errors:
         return {
-            'status': 'ok',
+            'status': 'success',
             'message': 'CPU settings were changed successfully!'
         }
 

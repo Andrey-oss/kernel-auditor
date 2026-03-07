@@ -3,8 +3,12 @@
 
 from flask import Flask, render_template, request, jsonify
 
+from core.database import (
+    db,
+    TuningProfile,
+    AuditLog)
 from core.settings import cfg_parser
-from checkhealth.check import init
+from checkhealth.check import init_hc
 
 from modules.sysctl import parse_sysctl, set_sysctl_param
 from modules.hardware import get_hardware_info
@@ -41,10 +45,25 @@ from modules.cpu import (
 app = Flask(__name__)
 cfg = cfg_parser()
 
-if cfg['checkhealth']:
-    init()
+app.config['SQLALCHEMY_DATABASE_URI'] = cfg.get('database_uri', 'sqlite:///tuning.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
 
-# Page section
+with app.app_context():
+    db.create_all()
+
+if cfg['checkhealth']:
+    init_hc()
+
+def get_active_profile_id():
+    """Return active profile ID or None (WIP Option)"""
+    try:
+        active = TuningProfile.query.filter_by(is_active=True).first()
+        return active.id if active else None
+    except Exception:
+        return None
+
+## ===== Page section =====
 
 @app.route('/')
 def home():
@@ -61,31 +80,19 @@ def usage():
 @app.route('/os')
 def os_info():
     info = get_system_info()
-
     return render_template('os.html', system_info=info)
 
 @app.route('/network')
 def network():
-    network_info = get_network_info()
-    speed_test = get_speed_test()
-    ip_info = get_ip_info()
-
-    return render_template('network.html',
-                           network_info=network_info,
-                           speed_test=speed_test,
-                           ip_info=ip_info
-                           )
+    return render_template('network.html')
 
 @app.route('/hardware')
 def hardware_info():
-    hw_info = get_hardware_info()
-
-    return render_template('hardware.html', hardware_info=hw_info)
+    return render_template('hardware.html')
 
 @app.route('/processes')
 def process_info():
-    processes = get_processes()
-    return render_template('processes.html', processes=processes)
+    return render_template('processes.html')
 
 @app.route('/schedulers')
 def schedulers():
@@ -141,102 +148,457 @@ def network_settings():
 
     return render_template('network_settings.html', network_data=network_data)
 
-## API SECTION
+@app.route('/history')
+def history_page():
+    return render_template('history.html')
 
-# Sched Settings
+@app.route('/profiles')
+def profiles_page():
+    """Render profiles management page"""
+    return render_template('profiles.html')
 
-@app.route('/api/set_scheduler', methods=['POST'])
-def set_scheduler():
-    data = request.json
-    result = set_sched(data)
+## ===== API SECTION =====
 
-    if result['status'] != 'ok':
-        return jsonify(result), 500
+@app.route('/api/network/data')
+def api_network_data():
+    """Get network data from API"""
+    try:
+        data = {
+            'network_info': get_network_info(),
+            'speed_test': get_speed_test(),
+            'ip_info': get_ip_info()
+        }
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/network/speedtest')
+def api_speedtest():
+    """API Speed test (WIP)"""
+    try:
+        result = get_speed_test()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/hardware')
+def api_hardware_info():
+    """API endpoint for hardware info (for dynamic updates)"""
+    try:
+        data = get_hardware_info()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/system')
+def api_system_info():
+    """API for system info (for dynamic updates)"""
+    try:
+        data = get_system_info()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/processes')
+def api_processes():
+    """API for processes list (for dynamic updates)"""
+    try:
+        processes = get_processes()
+        return jsonify(processes)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+## ===== Logs =====
+
+@app.route('/api/audit_logs', methods=['GET'])
+def get_audit_logs():
+    """Get paginated audit logs"""
+
+    # Pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    category = request.args.get('category', None)
+    status = request.args.get('status', None)
+
+    # Build query
+    query = AuditLog.query
+
+    if category:
+        query = query.filter_by(category=category)
+    if status:
+        query = query.filter_by(status=status)
+
+    # Order by timestamp (newest first) and paginate
+    paginated = query.order_by(AuditLog.timestamp.desc()).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    # Prepare response
+    result = {
+        'items': [log.to_dict() for log in paginated.items],
+        'pagination': {
+            'page': paginated.page,
+            'per_page': paginated.per_page,
+            'total': paginated.total,
+            'pages': paginated.pages,
+            'has_next': paginated.has_next,
+            'has_prev': paginated.has_prev,
+            'next_page': paginated.next_num if paginated.has_next else None,
+            'prev_page': paginated.prev_num if paginated.has_prev else None
+        }
+    }
 
     return jsonify(result)
+
+@app.route('/api/audit_logs/categories', methods=['GET'])
+def get_audit_categories():
+    """Get all unique categories for filtering"""
+    categories = db.session.query(AuditLog.category).distinct().all()
+    return jsonify([c[0] for c in categories if c[0]])
+
+## ===== Functional API Section =====
+
+# ========== SCHEDULER API WITH AUDIT ==========
 
 @app.route('/api/set_sched_tunning', methods=['POST'])
 def set_sched_tunning():
-    result = set_tun(request.json)
+    data = request.json
+    device = data.get('device')
 
-    if result['status'] != 'ok':
+    # Get old values before change
+    old_values = {}
+    try:
+        sched_values = get_sched_values()
+        if device in sched_values:
+            for param in data:
+                if param != 'device' and param in sched_values[device]:
+                    old_values[param] = sched_values[device][param]
+    except Exception:
+        old_values = {}
+
+    # Apply new settings
+    result = set_tun(data)
+
+    # Log each changed parameter
+    if result['status'] == 'success':
+        for param, new_value in data.items():
+            if param != 'device':
+                old_value = old_values.get(param, 'unknown')
+                if str(old_value) != str(new_value):
+                    log = AuditLog(
+                        action='change_scheduler_tuning',
+                        category='scheduler',
+                        parameter=f"device:{device}.{param}",
+                        old_value=old_value,
+                        new_value=new_value,
+                        status='success',
+                        profile_id=get_active_profile_id()
+                    )
+                    db.session.add(log)
+        db.session.commit()
+    else:
+        # Log error
+        log = AuditLog(
+            action='change_scheduler_tuning',
+            category='scheduler',
+            parameter=f"device:{device}",
+            new_value=str(data),
+            status='error',
+            profile_id=get_active_profile_id()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+    if result['status'] != 'success':
         return jsonify(result), 500
-
     return jsonify(result)
 
-# Sysctl Settings
-
-@app.route('/api/set_sysctl', methods=['POST'])
-def set_sysctl():
-    result = set_sysctl_param(request.json)
-
-    if result['status'] != 'ok':
-        return jsonify(result), 500
-
-    return jsonify(result)
-
-# CPU Settings
+# ========== CPU API WITH AUDIT ==========
 
 @app.route('/api/set_cpu_params', methods=['POST'])
 def set_cpu_params():
     data = request.json
+    cpu = data.get('cpu', 'unknown')
+
+    # Get old values before change
+    old_values = {}
+    try:
+        cpu_info_data = cpu_info()
+        if cpu in cpu_info_data:
+            for param in data:
+                if param != 'cpu' and param in cpu_info_data[cpu]:
+                    old_values[param] = cpu_info_data[cpu][param]
+    except Exception:
+        old_values = {}
+
+    # Apply new settings
     result = set_params(data)
 
-    if result['status'] != 'ok':
-        return jsonify(result), 500
+    # Log each changed parameter
+    if result['status'] == 'success':
+        for param, new_value in data.items():
+            if param != 'cpu':
+                old_value = old_values.get(param, 'unknown')
+                if str(old_value) != str(new_value):
+                    log = AuditLog(
+                        action='change_cpu_params',
+                        category='cpu',
+                        parameter=f"{cpu}.{param}",
+                        old_value=old_value,
+                        new_value=new_value,
+                        status='success',
+                        profile_id=get_active_profile_id()
+                    )
+                    db.session.add(log)
+        db.session.commit()
+    else:
+        # Log error
+        log = AuditLog(
+            action='change_cpu_params',
+            category='cpu',
+            parameter=f"{cpu}",
+            new_value=str(data),
+            status='error',
+            profile_id=get_active_profile_id()
+        )
+        db.session.add(log)
+        db.session.commit()
 
+    if result['status'] != 'success':
+        return jsonify(result), 500
+    return jsonify(result)
+
+# ========== NETWORK API WITH AUDIT ==========
+
+@app.route('/api/set_tcp_congestion', methods=['POST'])
+def set_tcp_algorithm():
+    algorithm = request.json.get('algorithm')
+
+    # Get old value
+    old_value = get_current_algo()
+
+    # Apply new setting
+    result = set_tcp_algo(algorithm)
+
+    # Log
+    log = AuditLog(
+        action='change_tcp_congestion',
+        category='network',
+        parameter='tcp_congestion_control',
+        old_value=old_value,
+        new_value=algorithm,
+        status=result['status'],
+        profile_id=get_active_profile_id()
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    if result['status'] != 'success':
+        return jsonify(result), 500
+    return jsonify(result)
+
+
+@app.route('/api/update_resolv', methods=['POST'])
+def update_resolv():
+    content = request.json.get('content')
+
+    # Get old content (first few lines for log)
+    try:
+        with open('/etc/resolv.conf', 'r', encoding='utf-8') as f:
+            old_content = f.read()[:200] + '...'  # Truncate for log
+    except Exception:
+        old_content = None
+
+    # Apply changes
+    result = set_dns(content)
+
+    # Log
+    log = AuditLog(
+        action='update_resolv',
+        category='network',
+        parameter='resolv.conf',
+        old_value=old_content,
+        new_value='DNS updated',
+        status=result['status'],
+        profile_id=get_active_profile_id()
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    if result['status'] != 'success':
+        return jsonify(result), 500
+    return jsonify(result)
+
+
+@app.route('/api/change_mac', methods=['POST'])
+def change_mac():
+    data = request.json
+    iface = data.get('iface')
+    mac = data.get('mac')
+
+    # Get old MAC (if possible)
+    try:
+        import subprocess
+        result = subprocess.run(['ip', 'link', 'show', iface], capture_output=True, text=True)
+        old_mac = 'unknown'
+        if 'link/ether' in result.stdout:
+            old_mac = result.stdout.split('link/ether')[1].strip().split()[0]
+    except Exception:
+        old_mac = 'unknown'
+
+    # Apply changes
+    result = mac_changer(data)
+
+    # Log
+    log = AuditLog(
+        action='change_mac',
+        category='network',
+        parameter=f"interface:{iface}",
+        old_value=old_mac,
+        new_value=mac,
+        status=result['status'],
+        profile_id=get_active_profile_id()
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    if result['status'] != 'success':
+        return jsonify(result), 500
+    return jsonify(result)
+
+
+@app.route('/api/set_socket_buffers', methods=['POST'])
+def set_socket_buffers():
+    data = request.json
+
+    # Get old values
+    old_values = get_socket_buffs()
+
+    # Apply changes
+    result = set_socket_buffs(data)
+
+    # Log each changed buffer
+    if result['status'] == 'success':
+        for param, new_value in data.items():
+            old_value = 'unknown'
+            # Try to find old value in socket_buffs structure
+            for key, value_dict in old_values.items():
+                if key == param:
+                    old_value = list(value_dict.values())[0]
+                    break
+
+            log = AuditLog(
+                action='change_socket_buffer',
+                category='network',
+                parameter=param,
+                old_value=old_value,
+                new_value=new_value,
+                status='success',
+                profile_id=get_active_profile_id()
+            )
+            db.session.add(log)
+        db.session.commit()
+    else:
+        # Log error
+        log = AuditLog(
+            action='change_socket_buffer',
+            category='network',
+            parameter='socket_buffers',
+            new_value=str(data),
+            status='error',
+            profile_id=get_active_profile_id()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+    if result['status'] != 'success':
+        return jsonify(result), 500
+    return jsonify(result)
+
+@app.route('/api/set_sysctl', methods=['POST'])
+def set_sysctl():
+    data = request.json
+
+    sysctl_data = parse_sysctl()
+    old_value = sysctl_data.get(data['name'], 'unknown')
+
+    result = set_sysctl_param(data)
+
+    log = AuditLog(
+        action='change_sysctl',
+        category='sysctl',
+        parameter=data['name'],
+        old_value=old_value,
+        new_value=data['value'],
+        status=result['status']
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    if result['status'] != 'success':
+        return jsonify(result), 500
     return jsonify(result)
 
 @app.route('/api/set_cpu_tuning', methods=['POST'])
 def set_cpu_tuning():
     data = request.json
+
+    # Get old params
+    old_cpu = general_cpu_info()
+
+    # Setting up new values
     result = set_general_tuning(data)
 
-    if result['status'] != 'ok':
-        return jsonify(result), 500
+    # Logging every parameter
+    if result['status'] == 'success' and 'error' not in old_cpu:
+        for param, value in data.items():
+            if param in old_cpu and str(old_cpu[param]) != str(value):
+                log = AuditLog(
+                    action='change_cpu',
+                    category='cpu',
+                    parameter=param,
+                    old_value=old_cpu[param],
+                    new_value=value,
+                    status='success'
+                )
+                db.session.add(log)
+        db.session.commit()
 
+    if result['status'] != 'success':
+        return jsonify(result), 500
     return jsonify(result)
 
-# Network Settings
-
-@app.route('/api/set_tcp_congestion', methods=['POST'])
-def set_tcp_algorithm():
-    algorithm = request.json['algorithm']
-    result = set_tcp_algo(algorithm)
-
-    if result['status'] != 'ok':
-        return jsonify(result), 500
-
-    return jsonify(result)
-
-@app.route('/api/update_resolv', methods=['POST'])
-def update_resolv():
-    data = request.json['content']
-    result = set_dns(data)
-
-    if result['status'] != 'ok':
-        return jsonify(result), 500
-
-    return jsonify(result)
-
-@app.route('/api/change_mac', methods=['POST'])
-def change_mac():
+@app.route('/api/set_scheduler', methods=['POST'])
+def set_scheduler_api():
     data = request.json
-    result = mac_changer(data)
 
-    if result['status'] != 'ok':
+    # Get old value
+    old_schedulers = get_schedulers()
+    old_value = None
+    if data['device'] in old_schedulers:
+        for s in old_schedulers[data['device']]:
+            if '[' in s:
+                old_value = s.strip('[]')
+                break
+
+    # Setting up new value
+    result = set_sched(data)
+
+    log = AuditLog(
+        action='change_scheduler',
+        category='scheduler',
+        parameter=f"device:{data['device']}",
+        old_value=old_value,
+        new_value=data['scheduler'],
+        status=result['status']
+    )
+    db.session.add(log)
+    db.session.commit()
+
+    if result['status'] != 'success':
         return jsonify(result), 500
-
-    return jsonify(result)
-
-@app.route('/api/set_socket_buffers', methods=['POST'])
-def set_socket_buffers():
-    data = request.json
-    result = set_socket_buffs(data)
-
-    if result['status'] != 'ok':
-        return jsonify(result), 500
-
     return jsonify(result)
 
 if __name__ == '__main__':

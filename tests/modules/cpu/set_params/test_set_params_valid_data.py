@@ -16,6 +16,6 @@ def test_valid_data():
     }
 
     try:
-        assert set_params(data)['status'] == 'ok'
+        assert set_params(data)['status'] == 'success'
     finally:
-        assert set_params(saved_data)['status'] == 'ok'
+        assert set_params(saved_data)['status'] == 'success'

@@ -24,6 +24,6 @@ def test_valid_data():
     }
 
     try:
-        assert set_sched(data)['status'] == 'ok'
+        assert set_sched(data)['status'] == 'success'
     finally:
-        assert set_sched(saved_data)['status'] == 'ok'
+        assert set_sched(saved_data)['status'] == 'success'

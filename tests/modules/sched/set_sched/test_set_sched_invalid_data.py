@@ -10,7 +10,7 @@ def test_invalid_device():
         'scheduler': 'none'
     }
 
-    assert set_sched(data)['status'] != 'ok'
+    assert set_sched(data)['status'] != 'success'
 
 def test_invalid_sched():
     '''Test for invalid scheduler'''
@@ -20,4 +20,4 @@ def test_invalid_sched():
         'scheduler': 'test123_xxf'
     }
 
-    assert set_sched(data)['status'] != 'ok'
+    assert set_sched(data)['status'] != 'success'

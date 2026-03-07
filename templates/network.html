@@ -3,66 +3,253 @@
 {% block title %}Network Information{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1 class="text-center my-5 text-info">Network Information</h1>
-        
-        <div class="row">
-            <!-- Network Interfaces -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-success">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">Network Interfaces</h5>
-                        <table class="table table-striped">
+<div class="container">
+    <h1 class="text-center mb-4">Network Information</h1>
+    
+    <div class="row">
+        <!-- Network Interfaces -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Network Interfaces</h5>
+                    <p class="text-muted small mb-3">Active network interfaces and traffic statistics</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Interface</th>
                                     <th>IP Address</th>
-                                    <th>Received (bytes)</th>
-                                    <th>Sent (bytes)</th>
-                                    <th>Speed (bytes/s)</th>
+                                    <th>Received</th>
+                                    <th>Sent</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {% for interface, details in network_info.items() %}
-                                    <tr>
-                                        <td>{{ interface }}</td>
-                                        <td>{{ details['ip'] }}</td>
-                                        <td>{{ details['received'] }}</td>
-                                        <td>{{ details['sent'] }}</td>
-                                        <td>{{ details['speed'] }}</td>
-                                    </tr>
-                                {% endfor %}
+                            <tbody id="network-table-body">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Loading network data...
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Speed Test -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Internet Speed Test</h5>
-                        <p><strong>Download Speed:</strong> {{ speed_test['download'] }}</p>
-                        <p><strong>Upload Speed:</strong> {{ speed_test['upload'] }}</p>
-                        <p><strong>Ping:</strong> {{ speed_test['ping'] }}</p>
+                    
+                    <div class="small text-muted mt-2" id="interfaces-info">
+                        Last update: <span id="lastUpdate">never</span>
                     </div>
                 </div>
             </div>
-
-            <!-- IP Address -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-lg border-warning">
-                    <div class="card-body">
-                        <h5 class="card-title text-warning">IP Information</h5>
-                        {% for k, v in ip_info.items() %}
-                            <p><strong>{{ k }}:</strong> {{ v }}</p>
-                        {% endfor %}
+        </div>
+        
+        <!-- Speed Test -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Internet Speed Test</h5>
+                    <p class="text-muted small mb-3">Test your connection speed</p>
+                    
+                    <div class="text-center mb-3">
+                        <button class="btn btn-primary" onclick="runSpeedTest()" id="speedtest-btn">
+                            Run Speed Test
+                        </button>
                     </div>
+                    
+                    <ul class="list-unstyled" id="speed-test-content">
+                        <li><strong>Download:</strong> <span id="download-speed">-</span></li>
+                        <li><strong>Upload:</strong> <span id="upload-speed">-</span></li>
+                        <li><strong>Ping:</strong> <span id="ping-speed">-</span></li>
+                    </ul>
                 </div>
             </div>
-
         </div>
 
+        <!-- IP Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">IP Information</h5>
+                    <p class="text-muted small mb-3">Your public IP and location details</p>
+                    
+                    <div id="ip-info-content">
+                        <ul class="list-unstyled">
+                            <li class="text-muted">Loading IP information...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<script>
+// Global vars
+let refreshInterval;
+let isSpeedTestRunning = false;
+
+// Loading data at start
+document.addEventListener('DOMContentLoaded', function() {
+    loadNetworkData();
+    startAutoRefresh();
+});
+
+// ========== Base data function downloader ==========
+function loadNetworkData() {
+    fetch('/api/network/data')
+        .then(response => response.json())
+        .then(data => {
+            updateNetworkTable(data.network_info);
+            updateIPInfo(data.ip_info);
+            updateSpeedTest(data.speed_test);
+            updateLastUpdateTime();
+        })
+        .catch(error => {
+            console.error('Error loading network data:', error);
+        });
+}
+
+// ========== Updating interface tables ==========
+function updateNetworkTable(networkInfo) {
+    const tbody = document.getElementById('network-table-body');
+    
+    if (!networkInfo || Object.keys(networkInfo).length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No active interfaces</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    for (const [interface, details] of Object.entries(networkInfo)) {
+        html += `
+            <tr>
+                <td><strong>${interface}</strong></td>
+                <td>${details.ip || '-'}</td>
+                <td class="received-cell">${formatBytes(details.received)}</td>
+                <td class="sent-cell">${formatBytes(details.sent)}</td>
+            </tr>
+        `;
+    }
+    
+    tbody.innerHTML = html;
+    animateCells();
+}
+
+// ========== Updating IP Information ==========
+function updateIPInfo(ipInfo) {
+    const content = document.getElementById('ip-info-content');
+    
+    if (!ipInfo || ipInfo.Internet === 'disabled') {
+        content.innerHTML = `
+            <ul class="list-unstyled">
+                <li><strong>Status:</strong> No internet connection</li>
+            </ul>
+        `;
+        return;
+    }
+    
+    let html = '<ul class="list-unstyled">';
+    for (const [key, value] of Object.entries(ipInfo)) {
+        html += `<li><strong>${key}:</strong> ${value}</li>`;
+    }
+    html += '</ul>';
+    
+    content.innerHTML = html;
+}
+
+// ========== SPEED TEST ==========
+function updateSpeedTest(speedTest) {
+    if (!speedTest) return;
+    
+    document.getElementById('download-speed').textContent = speedTest.download || '-';
+    document.getElementById('upload-speed').textContent = speedTest.upload || '-';
+    document.getElementById('ping-speed').textContent = speedTest.ping || '-';
+}
+
+// ========== SPEED TEST Start ==========
+function runSpeedTest() {
+    if (isSpeedTestRunning) return;
+    
+    isSpeedTestRunning = true;
+    const btn = document.getElementById('speedtest-btn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing...';
+    btn.disabled = true;
+    
+    // Temporary AutoRefresh stopping due to speedtest
+    stopAutoRefresh();
+    
+    fetch('/api/network/speedtest')
+        .then(response => response.json())
+        .then(data => {
+            updateSpeedTest(data);
+            btn.innerHTML = '✓ Done';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                isSpeedTestRunning = false;
+                startAutoRefresh();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Speed test error:', error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            isSpeedTestRunning = false;
+            startAutoRefresh();
+        });
+}
+
+// ========== AUTO-REFRESH ==========
+function startAutoRefresh() {
+    if (refreshInterval) clearInterval(refreshInterval);
+    refreshInterval = setInterval(() => {
+        if (!isSpeedTestRunning) {
+            loadNetworkData();
+        }
+    }, 1000);
+}
+
+function stopAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+}
+
+// ========== Helper functions ==========
+
+// Time updating
+function updateLastUpdateTime() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString();
+    document.getElementById('lastUpdate').textContent = timeStr;
+}
+
+// Human-readable byte function
+function formatBytes(bytes) {
+    if (bytes === 0 || !bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// Updated cells animation
+function animateCells() {
+    document.querySelectorAll('.received-cell, .sent-cell').forEach(cell => {
+        cell.style.transition = 'background-color 0.5s';
+        cell.style.backgroundColor = '#e8f5e8';
+        setTimeout(() => {
+            cell.style.backgroundColor = '';
+        }, 500);
+    });
+}
+
+// Clearning after page exit
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
+</script>
 {% endblock %}

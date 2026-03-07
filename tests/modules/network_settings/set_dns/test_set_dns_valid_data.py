@@ -12,6 +12,6 @@ def test_valid_data():
     saved_data = ''.join(parse_resolv())
 
     try:
-        assert set_dns(data)['status'] == 'ok'
+        assert set_dns(data)['status'] == 'success'
     finally:
-        assert set_dns(saved_data)['status'] == 'ok'
+        assert set_dns(saved_data)['status'] == 'success'
