@@ -152,11 +152,6 @@ def network_settings():
 def history_page():
     return render_template('history.html')
 
-@app.route('/profiles')
-def profiles_page():
-    """Render profiles management page"""
-    return render_template('profiles.html')
-
 ## ===== API SECTION =====
 
 @app.route('/api/network/data')
